@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Sqlzor.Data;
+using Sqlzor.Data.Drivers;
 
 namespace Sqlzor
 {
@@ -28,11 +29,15 @@ namespace Sqlzor
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+
             services.AddSingleton<WeatherForecastService>(); 
             services.AddSingleton<AppSettingsService>();
-            services.AddSingleton<QueryService>(); 
-            services.AddSingleton<IDatabaseDriver, SqlServerDatabaseDriver>();
+            services.AddSingleton<QueryService>();
+
+            services.AddSingleton<IDatabaseDriver, MySqlDatabaseDriver>();
             services.AddSingleton<IDatabaseDriver, NpgsqlDatabaseDriver>();
+            services.AddSingleton<IDatabaseDriver, SQLiteDatabaseDriver>();
+            services.AddSingleton<IDatabaseDriver, SqlServerDatabaseDriver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

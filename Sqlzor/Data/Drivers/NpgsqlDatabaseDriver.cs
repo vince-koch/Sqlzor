@@ -2,7 +2,7 @@
 
 using Npgsql;
 
-namespace Sqlzor.Data
+namespace Sqlzor.Data.Drivers
 {
     public class NpgsqlDatabaseDriver : IDatabaseDriver
     {

@@ -5,8 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="MySql.Data" Version="8.0.23" />
 	<PackageReference Include="Npgsql" Version="5.0.4" />
 	<PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+	<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
   </ItemGroup>
 
 </Project>

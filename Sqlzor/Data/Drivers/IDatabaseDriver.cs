@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 
-namespace Sqlzor.Data
+namespace Sqlzor.Data.Drivers
 {
     public interface IDatabaseDriver
     {

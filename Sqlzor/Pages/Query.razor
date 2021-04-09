@@ -4,6 +4,7 @@
 @using Sqlzor.Data
 
 @inject QueryService _queryService
+@inject AppSettingsService _appSettings 
 
 <h1>Query</h1>
 
@@ -70,12 +71,17 @@
 
 @code {
     private string connectionName = string.Empty;
-    private string queryText
-            = "SELECT DataSourceInstanceId, OperatingEnvironmentId, TableauSiteRegionId, DataSourceVersionId, CycleId, DateDeployed, CreatedDate, LastModified" + Environment.NewLine
-            + "FROM DataSourceInstance" + Environment.NewLine;
+    private string queryText = null;
+
     private bool isExecuting = false;
     private DataTable table = null;
     private Exception exception = null;
+
+    protected override Task OnInitializedAsync()
+    {
+        queryText = _appSettings.InitialQueryText;
+        return Task.FromResult(true);
+    }
 
     private async Task HandleExecuteQuery()
     {

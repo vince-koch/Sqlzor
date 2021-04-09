@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
+using Sqlzor.Data.Drivers;
+
 namespace Sqlzor.Data
 {
     public class QueryService

@@ -8,6 +8,8 @@ namespace Sqlzor.Data
 
         public string ConnectionStringsFile => GetValue<string>(nameof(ConnectionStringsFile));
 
+        public string InitialQueryText => GetValue<string>(nameof(InitialQueryText));
+
         public AppSettingsService(IConfiguration config)
         {
             _config = config;
