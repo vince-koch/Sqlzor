@@ -1,0 +1,12 @@
+﻿@if (Exception != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <h5>Exception</h5>
+        <pre style="font-size: x-small">@Exception.ToString()</pre>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Exception Exception { get; set; } = null;
+}

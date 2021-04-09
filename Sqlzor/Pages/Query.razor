@@ -1,0 +1,101 @@
+﻿@page "/query"
+
+@using System.Data
+@using Sqlzor.Data
+
+@inject QueryService _queryService
+
+<h1>Query</h1>
+
+<div class="form-group">
+    <label>Connection Name</label>
+    <ConnectionNameSelect @bind-ConnectionName="@connectionName" />
+</div>
+
+<div class="form-group">
+    <label for="queryTextArea">Query</label>
+    <textarea class="form-control" id="queryTextArea" rows="10" @bind="queryText" @bind:event="oninput" />
+</div>
+
+<div class="form-group">
+    <button type="button" class="btn btn-primary"
+            disabled="@(connectionName == string.Empty || queryText == string.Empty)"
+            @onclick="HandleExecuteQuery">
+        <span class="oi oi-play-circle"></span> Execute
+    </button>
+</div>
+
+@if (isExecuting || table != null || exception != null)
+{
+    <h1>Results</h1>
+}
+
+@if (isExecuting)
+{
+    <div class="align-middle">
+        <span class="spinner-border" role="status" aria-hidden="true"></span>
+        Loading...
+    </div>
+}
+
+@if (table != null)
+{
+    <table class="table table-sm table-light table-striped" style="font-size: x-small">
+        <thead>
+            <tr>
+                @foreach (var column in table.Columns.Cast<DataColumn>())
+                {
+                    <th>@column.ColumnName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in table.Rows.Cast<DataRow>())
+            {
+                <tr>
+                    @foreach (var item in row.ItemArray)
+                    {
+                        <td>@item</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (exception != null)
+{
+    <ExceptionComponent Exception="@exception" />
+}
+
+@code {
+    private string connectionName = string.Empty;
+    private string queryText
+            = "SELECT DataSourceInstanceId, OperatingEnvironmentId, TableauSiteRegionId, DataSourceVersionId, CycleId, DateDeployed, CreatedDate, LastModified" + Environment.NewLine
+            + "FROM DataSourceInstance" + Environment.NewLine;
+    private bool isExecuting = false;
+    private DataTable table = null;
+    private Exception exception = null;
+
+    private async Task HandleExecuteQuery()
+    {
+        try
+        {
+            isExecuting = true;
+            table = null;
+            exception = null;
+
+            table = await _queryService.ExecuteAsync(
+                connectionName,
+                queryText);
+        }
+        catch (Exception thrown)
+        {
+            exception = thrown;
+        }
+        finally
+        {
+            isExecuting = false;
+        }
+    }
+}

@@ -1,0 +1,35 @@
+﻿@using Sqlzor.Data
+
+@inject QueryService _queryService
+
+@if (connectionNames != null)
+{
+    <select class="form-control" value="@ConnectionName" @onchange="OnConnectionNameChanged">
+        <option disabled selected value=""> -- Select a Connection -- </option>
+        @foreach (var connectionName in connectionNames.OrderBy(item => item))
+        {
+            <option value="@connectionName">@connectionName</option>
+        }
+    </select>
+}
+
+@code
+{
+    [Parameter]
+    public string ConnectionName { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> ConnectionNameChanged { get; set; }
+
+    private string[] connectionNames;
+
+    protected override async Task OnInitializedAsync()
+    {
+        connectionNames = await _queryService.GetConnectionNames();
+    }
+
+    private async Task OnConnectionNameChanged(ChangeEventArgs e)
+    {
+        await ConnectionNameChanged.InvokeAsync(e.Value as string);
+    }
+}
