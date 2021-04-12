@@ -7,7 +7,7 @@ namespace Sqlzor.Data.Drivers
 {
     public class MySqlDatabaseDriver : IDatabaseDriver
     {
-        public string ProviderName => "MySql.Data.MySqlClient";
+        public string ProviderName => ProviderNames.MySql;
 
         public DbConnection CreateConnection()
         {

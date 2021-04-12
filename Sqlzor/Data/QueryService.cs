@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -86,6 +88,48 @@ namespace Sqlzor.Data
         {
             using (var connection = await OpenNamedConnectionAsync(connectionStringName))
             {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                var dataTable = connection.GetSchema();
+                var tables = new Dictionary<string, object>();
+                tables.Add(string.Empty, dataTable);
+
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    var tableCollectionName = row[0].ToString();
+                    try
+                    {
+                        var table = connection.GetSchema(tableCollectionName);
+                        tables.Add(tableCollectionName, table);
+                    }
+                    catch (Exception thrown)
+                    {
+                        tables.Add(tableCollectionName, thrown.Message);
+                    }
+                }
+
+                stopwatch.Stop();
+
+                foreach (var pair in tables)
+                {
+                    Debug.WriteLine(string.Empty);
+                    Debug.WriteLine(pair.Key);
+                    Debug.WriteLine((pair.Value as DataTable)?.AsString() ?? pair.Value);
+                }
+
+                Debug.WriteLine(string.Empty);
+                Debug.WriteLine($"{tables.Count} tables returned in {stopwatch.Elapsed}");
+
+                return dataTable;
+            }
+        }
+        
+        /*
+        public async Task<DataTable> GetSchemaAsync(string connectionStringName, string collectionName, string[] restrictionValues)
+        {
+            using (var connection = await OpenNamedConnectionAsync(connectionStringName))
+            {
                 DataTable dataTable = null;
                 
                 if (!string.IsNullOrWhiteSpace(collectionName))
@@ -107,6 +151,7 @@ namespace Sqlzor.Data
                 return dataTable;
             }
         }
+        */
 
         private async Task<IDatabaseDriver> GetDatabaseDriver(string connectionStringName)
         {

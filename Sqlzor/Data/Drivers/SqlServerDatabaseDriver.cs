@@ -5,7 +5,7 @@ namespace Sqlzor.Data.Drivers
 {
     public class SqlServerDatabaseDriver : IDatabaseDriver
     {
-        public string ProviderName => "System.Data.SqlClient";
+        public string ProviderName => ProviderNames.SqlServer;
 
         public DbConnection CreateConnection()
         {

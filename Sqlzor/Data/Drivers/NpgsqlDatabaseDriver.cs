@@ -6,7 +6,7 @@ namespace Sqlzor.Data.Drivers
 {
     public class NpgsqlDatabaseDriver : IDatabaseDriver
     {
-        public string ProviderName => "Npgsql";
+        public string ProviderName => ProviderNames.Postgres;
 
         public DbConnection CreateConnection()
         {

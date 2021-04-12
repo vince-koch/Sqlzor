@@ -5,7 +5,7 @@ namespace Sqlzor.Data.Drivers
 {
     public class SQLiteDatabaseDriver : IDatabaseDriver
     {
-        public string ProviderName => "System.Data.SQLite";
+        public string ProviderName => ProviderNames.SQLite;
 
         public DbConnection CreateConnection()
         {
