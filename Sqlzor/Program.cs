@@ -6,48 +6,58 @@ using System.IO;
 using System.Linq;
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using Sqlzor.Data;
-using Sqlzor.Data.Drivers;
-using Sqlzor.Data.Drivers.Services;
+using Sqlzor.Drivers;
 
 namespace Sqlzor
 {
     public class Program
     {
-        //public static readonly IDatabaseDriver DatabaseDriver = new SQLiteDatabaseDriver();
+        //public static readonly string DatabaseProviderName = ProviderNames.MySql;
+        //public static readonly string DatabaseConnectionString = "server=mysql-rfam-public.ebi.ac.uk; port=4497; userid=rfamro; database=Rfam";
+        //public static readonly string DatabaseProviderName = ProviderNames.SQLite;
         //public static readonly string DatabaseConnectionString = @"URI=file:C:\source\_settings\test.db";
-        public static readonly IDatabaseDriver DatabaseDriver = new MySqlDatabaseDriver();
-        public static readonly string DatabaseConnectionString = "server=mysql-rfam-public.ebi.ac.uk; port=4497; userid=rfamro; database=Rfam";
+        public static readonly string DatabaseProviderName = ProviderNames.Postgres;
+        public static readonly string DatabaseConnectionString = "Host=hh-pgsql-public.ebi.ac.uk; Port=5432; Database=pfmegrnargs; Username=reader; Password=NWDMCE5xdipIjRrp";       
 
         public static void Main(string[] args)
         {
-            var persistanceService = new SchemaPersistanceService();
-            var schema = persistanceService.LoadSchema(DatabaseConnectionString);
-            if (schema == null)
-            {
-                var fetchService = new SchemaFetchService();
-                var dataTables = fetchService.FetchSchemaTables(DatabaseDriver, DatabaseConnectionString, 5)
-                    .GetAwaiter()
-                    .GetResult();
+            StartupExe(args);
+            //StartupWeb(args);
+        }
 
-                Debug.WriteLine(dataTables["Restrictions"].AsString());
+        private static void StartupExe(string[] args)
+        {
+            var serviceBuilder = new ServiceCollection();
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appSettings.json")
+                .Build();
 
-                var mappingService = new SchemaMappingService();
-                schema = mappingService.MapSchema(DatabaseDriver.ProviderName, dataTables);
+            var startup = new Startup(configuration);
+            startup.ConfigureServices(serviceBuilder);
 
-                persistanceService.SaveSchema(DatabaseConnectionString, schema);
-            }
+            var services = serviceBuilder.BuildServiceProvider();
+            var databaseDriverManager = services.GetService<IDatabaseDriverManagerService>();
+            var schema = databaseDriverManager.GetSchema(DatabaseProviderName, DatabaseConnectionString)
+                .GetAwaiter()
+                .GetResult();
 
+            var i = 0;
             //var builder = new SchemaTreeBuilder();
             //var tree = builder.BuildSchemaTree(schema);
             //var i = 0;
-
-            //CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        private static void StartupWeb(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

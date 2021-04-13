@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-using Sqlzor.Data.Drivers;
+using Sqlzor.Drivers;
 
 namespace Sqlzor.Data
 {
