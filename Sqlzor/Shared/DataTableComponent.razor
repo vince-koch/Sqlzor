@@ -1,0 +1,37 @@
+﻿@using System.Data
+
+@if (Table != null)
+{
+    if (!string.IsNullOrWhiteSpace(Table.TableName))
+    {
+        <h4>@Table.TableName</h4>
+    }
+
+    <table class="table table-sm table-light table-striped" style="font-size: x-small">
+        <thead>
+            <tr>
+                @foreach (var column in Table.Columns.Cast<DataColumn>())
+                {
+                    <th>@column.ColumnName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Table.Rows.Cast<DataRow>())
+            {
+                <tr>
+                    @foreach (var item in row.ItemArray)
+                    {
+                        <td>@item</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code
+{
+    [Parameter]
+    public DataTable Table { get; set; } = null;
+}

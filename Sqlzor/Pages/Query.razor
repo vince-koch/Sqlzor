@@ -1,12 +1,12 @@
 ﻿@page "/query"
 
-@using System.Data
-@using System.Diagnostics
-@using Sqlzor.Data
+@using System.Data;
+@using System.Diagnostics;
+@using Sqlzor.Data;
 
-@inject IJSRuntime _jsRuntime
-@inject QueryService _queryService
-@inject AppSettingsService _appSettings
+@inject IJSRuntime _jsRuntime;
+@inject QueryApi _queryApi;
+@inject AppSettingsService _appSettings;
 
 <h1>Query</h1>
 
@@ -43,35 +43,8 @@
     </div>
 }
 
-@if (table != null)
-{
-    <table class="table table-sm table-light table-striped" style="font-size: x-small">
-        <thead>
-            <tr>
-                @foreach (var column in table.Columns.Cast<DataColumn>())
-                {
-                    <th>@column.ColumnName</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var row in table.Rows.Cast<DataRow>())
-            {
-                <tr>
-                    @foreach (var item in row.ItemArray)
-                    {
-                        <td>@item</td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@if (exception != null)
-{
-    <ExceptionComponent Exception="@exception" />
-}
+<DataTableComponent Table="@table" />
+<ExceptionComponent Exception="@exception" />
 
 @code {
     private string connectionName = string.Empty;
@@ -104,7 +77,7 @@
             table = null;
             exception = null;
 
-            table = await _queryService.ExecuteAsync(
+            table = await _queryApi.ExecuteAsync(
                 connectionName,
                 queryText);
         }

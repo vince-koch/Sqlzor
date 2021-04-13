@@ -3,47 +3,30 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 using Sqlzor.Drivers;
 
 namespace Sqlzor.Data
 {
-    public class QueryService
+    public class QueryApi
     {
-        private readonly AppSettingsService _appSettings;
+        private readonly ConnectionStringService _connectionStringService;
         private readonly IDatabaseDriver[] _databaseDrivers;
 
-        public QueryService(
-            AppSettingsService appSettings,
+        public QueryApi(
+            ConnectionStringService connectionStringService,
             IEnumerable<IDatabaseDriver> databaseDrivers)
         {
-            _appSettings = appSettings;
+            _connectionStringService = connectionStringService;
             _databaseDrivers = databaseDrivers.ToArray();
         }
 
+        // todo: remove this method
         public async Task<ConnectionStringEntry[]> GetConnectionStringEntries()
         {
-            using (var stream = File.OpenRead(_appSettings.ConnectionStringsFile))
-            {
-                var document = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
-
-                var connectionStringEntries = document.Descendants()
-                    .Where(item => item.Name.LocalName == "add")
-                    .Select(item => new ConnectionStringEntry
-                    {
-                        Name = item.Attribute("name").Value,
-                        ProviderName = item.Attribute("providerName")?.Value,
-                        ConnectionString = item.Attribute("connectionString").Value
-                    })
-                    .ToArray();
-
-                return connectionStringEntries;
-            }
+            return await _connectionStringService.GetConnectionStringEntries();
         }
 
         public Task<string[]> GetProviderNames()

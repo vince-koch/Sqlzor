@@ -38,7 +38,10 @@ namespace Sqlzor
 
             services.AddSingleton<WeatherForecastService>(); 
             services.AddSingleton<AppSettingsService>();
-            services.AddSingleton<QueryService>();
+            services.AddSingleton<ConnectionStringService>();
+
+            services.AddSingleton<SchemaApi>();
+            services.AddSingleton<QueryApi>();
 
             services.AddSingleton<ISchemaPersistanceService, SchemaPersistanceService>();
 
