@@ -24,11 +24,19 @@ namespace Sqlzor.Data
             var connectionEntry = await _connectionStringService.GetConnectionStringEntry(connectionName);
             var databaseDriver = _databaseDriverManagerService.GetDriver(connectionEntry.ProviderName);
             var schemaFetchService = databaseDriver.CreateSchemaFetchService();
-            var dictionary = await schemaFetchService.FetchSchemaTables(databaseDriver, connectionEntry.ConnectionString, 2);
-            var dataTables = dictionary.Values.Where(table => table != null).ToArray();
 
-            return dataTables;
+            if (string.IsNullOrWhiteSpace(collectionName))
+            {
+                var dictionary = await schemaFetchService.GetAllSchemaCollections(connectionEntry.ConnectionString, 2);
+                var result = dictionary.Values.Where(table => table != null).ToArray();
+                return result;
+            }
+            else
+            {
+                var dataTable = await schemaFetchService.GetSchemaCollection(connectionEntry.ConnectionString, collectionName, restrictions);
+                var result = new DataTable[] { dataTable };
+                return result;
+            }
         }
-
     }
 }

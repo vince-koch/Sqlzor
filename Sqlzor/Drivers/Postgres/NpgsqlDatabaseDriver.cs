@@ -25,7 +25,7 @@ namespace Sqlzor.Drivers.Postgres
 
         public ISchemaFetchService CreateSchemaFetchService()
         {
-            return new NpgsqlSchemaFetchService();
+            return new NpgsqlSchemaFetchService(this);
         }
 
         public ISchemaMapper CreateSchemaMapper()

@@ -1,0 +1,39 @@
+﻿@using System.Data;
+
+@using Sqlzor.Data;
+
+@if (Tables != null || Error != null)
+{
+    <h1>Results</h1>
+}
+
+<ExceptionComponent Exception="@Error" />
+@if (Tables != null)
+{
+    if (Tables.Length > 0)
+    {
+        <p class="text-muted">Query completed in <span class="fw-bold">@Elapsed.ToHumanTimeString()</span> and returned <span class="fw-bold">@Tables.Length</span> table(s) containing <span class="fw-bold">@Tables.Sum(table => table.Rows.Count)</span> row(s).</p>
+
+        <div class="accordion accordion-flush" id="queryResultsAccordion">
+            @foreach (var table in Tables)
+            {
+                <DataTableComponent Table="@table" />
+            }
+        </div>
+    }
+    else
+    {
+        <p>Query completed in <span class="fw-bold">@Elapsed.ToHumanTimeString()</span></p>
+    }
+}
+
+@code {
+    [Parameter]
+    public Exception Error { get; set; } = null;
+
+    [Parameter]
+    public DataTable[] Tables { get; set; } = null;
+
+    [Parameter]
+    public TimeSpan? Elapsed { get; set; } = null;
+}

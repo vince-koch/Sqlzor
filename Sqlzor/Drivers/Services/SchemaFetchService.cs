@@ -9,12 +9,18 @@ namespace Sqlzor.Drivers.Services
 {
     public class SchemaFetchService : ISchemaFetchService
     {
-        public virtual async Task<Dictionary<string, DataTable>> FetchSchemaTables(
-            IDatabaseDriver databaseDriver,
+        protected IDatabaseDriver DatabaseDriver { get; }
+
+        public SchemaFetchService(IDatabaseDriver databaseDriver)
+        {
+            DatabaseDriver = databaseDriver;
+        }
+
+        public virtual async Task<Dictionary<string, DataTable>> GetAllSchemaCollections(
             string connectionString,
             int maxConnections)
         {
-            var metaDataCollections = await GetCollection(databaseDriver, connectionString, "MetaDataCollections");
+            var metaDataCollections = await GetSchemaCollection(connectionString, "MetaDataCollections");
             var numberOfConnections = Math.Min(maxConnections, metaDataCollections.Rows.Count);
 
             var pairs = new List<KeyValuePair<string, Task<DataTable>>>();
@@ -25,7 +31,7 @@ namespace Sqlzor.Drivers.Services
                 .WithDegreeOfParallelism(numberOfConnections)
                 .ForAll(collectionName =>
                 {
-                    var collection = GetCollection(databaseDriver, connectionString, collectionName);
+                    var collection = GetSchemaCollection(connectionString, collectionName);
                     var pair = new KeyValuePair<string, Task<DataTable>>(collectionName, collection);
                     pairs.Add(pair);
                 });
@@ -37,16 +43,19 @@ namespace Sqlzor.Drivers.Services
             return dataTables;
         }
 
-        protected virtual async Task<DataTable> GetCollection(
-            IDatabaseDriver databaseDriver,
+        public virtual async Task<DataTable> GetSchemaCollection(
             string connectionString,
-            string collectionName)
+            string collectionName,
+            string[] restrictions = null)
         {
             try
             {
-                using (var connection = await databaseDriver.OpenConnection(connectionString))
+                using (var connection = await DatabaseDriver.OpenConnection(connectionString))
                 {
-                    var dataTable = connection.GetSchema(collectionName);
+                    var dataTable = restrictions != null && restrictions.Any()
+                        ? connection.GetSchema(collectionName, restrictions)
+                        : connection.GetSchema(collectionName);
+
                     return dataTable;
                 }
             }

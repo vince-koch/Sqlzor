@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,34 +14,19 @@ namespace Sqlzor.Data
     public class QueryApi
     {
         private readonly ConnectionStringService _connectionStringService;
-        private readonly IDatabaseDriver[] _databaseDrivers;
+        private readonly IDatabaseDriverManagerService _databaseDriverManagerService;
 
         public QueryApi(
             ConnectionStringService connectionStringService,
-            IEnumerable<IDatabaseDriver> databaseDrivers)
+            IDatabaseDriverManagerService databaseDriverManagerService)
         {
             _connectionStringService = connectionStringService;
-            _databaseDrivers = databaseDrivers.ToArray();
-        }
-
-        // todo: remove this method
-        public async Task<ConnectionStringEntry[]> GetConnectionStringEntries()
-        {
-            return await _connectionStringService.GetConnectionStringEntries();
-        }
-
-        public Task<string[]> GetProviderNames()
-        {
-            var providerNames = _databaseDrivers
-                .Select(item => item.ProviderName)
-                .ToArray();
-
-            return Task.FromResult(providerNames);
+            _databaseDriverManagerService = databaseDriverManagerService;
         }
 
         public async Task<string[]> GetConnectionNames()
         {
-            var connectionStringEntries = await GetConnectionStringEntries();
+            var connectionStringEntries = await _connectionStringService.GetConnectionStringEntries();
 
             var connectionNames = connectionStringEntries
                 .Select(item => item.Name)
@@ -49,107 +35,55 @@ namespace Sqlzor.Data
             return connectionNames;
         }
 
-        public async Task<DataTable> ExecuteAsync(string connectionStringName, string queryText)
+        public async Task<DataTable[]> ExecuteAsync(string connectionStringName, string queryText)
         {
+            queryText = await TryReadFile(queryText);
+
             using (var connection = await OpenNamedConnectionAsync(connectionStringName))
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.Text;
                 command.CommandText = queryText;
+                command.CommandTimeout = 0;
 
+                var result = new List<DataTable>();
                 using (var reader = await command.ExecuteReaderAsync())
                 {
-                    DataTable table = new DataTable();
-                    table.Load(reader);
-
-                    return table;
+                    do
+                    {
+                        DataTable table = new DataTable();
+                        table.Load(reader);
+                        result.Add(table);
+                    }
+                    while (!reader.IsClosed && reader.HasRows);
                 }
+
+                return result.ToArray();
             }
         }
 
-        public async Task<DataTable> GetSchemaAsync(string connectionStringName, string collectionName, string[] restrictionValues)
+        private async Task<string> TryReadFile(string path)
         {
-            using (var connection = await OpenNamedConnectionAsync(connectionStringName))
+            try
             {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-
-                var dataTable = connection.GetSchema();
-                var tables = new Dictionary<string, object>();
-                tables.Add(string.Empty, dataTable);
-
-                foreach (DataRow row in dataTable.Rows)
+                if (File.Exists(path.Trim()))
                 {
-                    var tableCollectionName = row[0].ToString();
-                    try
-                    {
-                        var table = connection.GetSchema(tableCollectionName);
-                        tables.Add(tableCollectionName, table);
-                    }
-                    catch (Exception thrown)
-                    {
-                        tables.Add(tableCollectionName, thrown.Message);
-                    }
+                    var queryText = await File.ReadAllTextAsync(path.Trim());
+                    return queryText;
                 }
-
-                stopwatch.Stop();
-
-                foreach (var pair in tables)
-                {
-                    Debug.WriteLine(string.Empty);
-                    Debug.WriteLine(pair.Key);
-                    Debug.WriteLine((pair.Value as DataTable)?.AsString() ?? pair.Value);
-                }
-
-                Debug.WriteLine(string.Empty);
-                Debug.WriteLine($"{tables.Count} tables returned in {stopwatch.Elapsed}");
-
-                return dataTable;
             }
-        }
-        
-        /*
-        public async Task<DataTable> GetSchemaAsync(string connectionStringName, string collectionName, string[] restrictionValues)
-        {
-            using (var connection = await OpenNamedConnectionAsync(connectionStringName))
+            catch
             {
-                DataTable dataTable = null;
-                
-                if (!string.IsNullOrWhiteSpace(collectionName))
-                {
-                    if (restrictionValues != null && restrictionValues.Length > 0)
-                    {
-                        dataTable = connection.GetSchema(collectionName, restrictionValues);
-                    }
-                    else
-                    {
-                        dataTable = connection.GetSchema(collectionName);
-                    }
-                }
-                else
-                {
-                    dataTable = connection.GetSchema();
-                }
-
-                return dataTable;
+                // we're doing something kind of dumb here, so just ignore it if things go sideways
             }
-        }
-        */
 
-        private async Task<IDatabaseDriver> GetDatabaseDriver(string connectionStringName)
-        {
-            var connectionStringEntries = await GetConnectionStringEntries();
-            var connectionEntry = connectionStringEntries.Single(item => item.Name == connectionStringName);
-            var databaseDriver = _databaseDrivers.Single(item => item.ProviderName == connectionEntry.ProviderName);
-            return databaseDriver;
+            return path;
         }
 
         private async Task<DbConnection> OpenNamedConnectionAsync(string connectionStringName)
         {
-            var connectionStringEntries = await GetConnectionStringEntries();
-            var connectionEntry = connectionStringEntries.Single(item => item.Name == connectionStringName);
-            var databaseDriver = _databaseDrivers.Single(item => item.ProviderName == connectionEntry.ProviderName);
-
+            var connectionEntry = await _connectionStringService.GetConnectionStringEntry(connectionStringName);
+            var databaseDriver = _databaseDriverManagerService.GetDriver(connectionEntry.ProviderName);
             var connection = databaseDriver.CreateConnection();
             connection.ConnectionString = connectionEntry.ConnectionString;
             await connection.OpenAsync();

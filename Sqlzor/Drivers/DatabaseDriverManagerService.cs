@@ -53,11 +53,7 @@ namespace Sqlzor.Drivers
             if (schema == null)
             {
                 var schemaFetchService = databaseDriver.CreateSchemaFetchService();
-
-                var dataTables = await schemaFetchService.FetchSchemaTables(
-                    databaseDriver,
-                    connectionString,
-                    maxConnections);
+                var dataTables = await schemaFetchService.GetAllSchemaCollections(connectionString, maxConnections);
 
                 var schemaMapper = databaseDriver.CreateSchemaMapper();
                 schema = schemaMapper.MapSchema(dataTables);

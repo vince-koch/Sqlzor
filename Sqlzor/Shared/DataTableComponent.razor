@@ -2,36 +2,47 @@
 
 @if (Table != null)
 {
-    if (!string.IsNullOrWhiteSpace(Table.TableName))
-    {
-        <h4>@Table.TableName</h4>
-    }
+    <h4 @onclick="HandleClick">
+        <span class=@(isCollapsed ? "oi oi-chevron-right" : "oi oi-chevron-bottom") aria-hidden="true"></span> @(Table.TableName ?? "(Unnamed Table)")
+    </h4>
 
-    <table class="table table-sm table-light table-striped" style="font-size: x-small">
-        <thead>
-            <tr>
-                @foreach (var column in Table.Columns.Cast<DataColumn>())
-                {
-                    <th>@column.ColumnName</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var row in Table.Rows.Cast<DataRow>())
-            {
+    @if (!isCollapsed)
+    {
+        <table class="table table-sm table-light table-striped" style="font-size: x-small">
+            <thead>
                 <tr>
-                    @foreach (var item in row.ItemArray)
+                    @foreach (var column in Table.Columns.Cast<DataColumn>())
                     {
-                        <td>@item</td>
+                        <th>@column.ColumnName</th>
                     }
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var row in Table.Rows.Cast<DataRow>())
+                {
+                    <tr>
+                        @foreach (var item in row.ItemArray)
+                        {
+                            <td>@item</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 }
 
 @code
 {
+    private string accordionItemId = "accordionItem-" + Guid.NewGuid().ToString();
+    private bool isCollapsed = false;
+
     [Parameter]
     public DataTable Table { get; set; } = null;
+
+    private void HandleClick()
+    {
+        isCollapsed = !isCollapsed;
+        Console.WriteLine("isCollapsed is now ", isCollapsed);
+    }
 }

@@ -25,7 +25,7 @@ namespace Sqlzor.Drivers.MySql
 
         public ISchemaFetchService CreateSchemaFetchService()
         {
-            return new SchemaFetchService();
+            return new SchemaFetchService(this);
         }
 
         public ISchemaMapper CreateSchemaMapper()

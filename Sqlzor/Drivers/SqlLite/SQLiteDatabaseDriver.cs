@@ -24,7 +24,7 @@ namespace Sqlzor.Drivers.SqlLite
 
         public ISchemaFetchService CreateSchemaFetchService()
         {
-            return new SchemaFetchService();
+            return new SchemaFetchService(this);
         }
 
         public ISchemaMapper CreateSchemaMapper()

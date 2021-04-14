@@ -13,17 +13,22 @@ namespace Sqlzor.Drivers.Postgres
 {
     public class NpgsqlSchemaFetchService : SchemaFetchService
     {
-        protected override async Task<DataTable> GetCollection(
-            IDatabaseDriver databaseDriver,
+        public NpgsqlSchemaFetchService(IDatabaseDriver databaseDriver)
+            : base(databaseDriver)
+        {
+        }
+
+        public override async Task<DataTable> GetSchemaCollection(
             string connectionString,
-            string collectionName)
+            string collectionName,
+            string[] restrictions = null)
         {
             DataTable dataTable = null;
 
             switch (collectionName)
             {
                 case "MetaDataCollections":
-                    dataTable = await base.GetCollection(databaseDriver, connectionString, collectionName);
+                    dataTable = await base.GetSchemaCollection(connectionString, collectionName, restrictions);
                     
                     var row = dataTable.NewRow();
                     row["CollectionName"] = "ForeignKeys";
@@ -35,12 +40,12 @@ namespace Sqlzor.Drivers.Postgres
                     break;
 
                 case "ForeignKeys":
-                    dataTable = await ExecuteScriptFile(databaseDriver, connectionString, "/SelectForeignKeys.sql");
+                    dataTable = await ExecuteScriptFile(connectionString, "/SelectForeignKeys.sql");
                     dataTable.TableName = "ForeignKeys";
                     break;
 
                 default:
-                    dataTable = await base.GetCollection(databaseDriver, connectionString, collectionName);
+                    dataTable = await base.GetSchemaCollection(connectionString, collectionName, restrictions);
                     break;
             }
 
@@ -49,11 +54,10 @@ namespace Sqlzor.Drivers.Postgres
 
         
         protected async Task<DataTable> ExecuteScriptFile(
-            IDatabaseDriver databaseDriver,
             string connectionString,
             string scriptFile)
         {
-            using (var connection = await databaseDriver.OpenConnection(connectionString))
+            using (var connection = await DatabaseDriver.OpenConnection(connectionString))
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.Text;
