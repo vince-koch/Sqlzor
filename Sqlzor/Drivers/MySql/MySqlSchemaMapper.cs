@@ -9,7 +9,7 @@ namespace Sqlzor.Drivers.MySql
 {
     public class MySqlSchemaMapper : AbstractSchemaMapper
     {
-        public override SchemaModel MapSchema(Dictionary<string, DataTable> dataTables)
+        public override SchemaModel MapSchema(DataTable[] dataTables)
         {
             var schema = new SchemaModel();
             schema.ProviderName = ProviderNames.MySql;
@@ -38,8 +38,8 @@ namespace Sqlzor.Drivers.MySql
         protected override ColumnModel MapColumn(DataRow row)
         {
             var column = new ColumnModel();
-            column.TableCatalog = row.GetString("TABLE_CATALOG");
-            column.TableSchema = row.GetString("TABLE_SCHEMA");
+            column.TableCatalog = row.GetString("TABLE_SCHEMA");
+            column.TableSchema = null;
             column.TableName = row.GetString("TABLE_NAME");
             column.ColumnName = row.GetString("COLUMN_NAME");
             column.OrdinalPosition = row.GetInt("ORDINAL_POSITION");
@@ -118,8 +118,8 @@ namespace Sqlzor.Drivers.MySql
             foreignKey.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
             foreignKey.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
             foreignKey.ConstraintName = row.GetString("CONSTRAINT_NAME");
-            foreignKey.TableCatalog = row.GetString("TABLE_CATALOG");
-            foreignKey.TableSchema = row.GetString("TABLE_SCHEMA");
+            foreignKey.TableCatalog = row.GetString("TABLE_SCHEMA");
+            foreignKey.TableSchema = null;
             foreignKey.TableName = row.GetString("TABLE_NAME");
 
             return foreignKey;
@@ -128,8 +128,8 @@ namespace Sqlzor.Drivers.MySql
         protected override Models.IndexModel MapIndex(DataRow row)
         {
             var index = new Models.IndexModel();
-            index.ConstraintCatalog = row.GetString("INDEX_CATALOG");
-            index.ConstraintSchema = row.GetString("INDEX_SCHEMA");
+            index.ConstraintCatalog = row.GetString("INDEX_SCHEMA");
+            index.ConstraintSchema = null;
             index.ConstraintName = row.GetString("INDEX_NAME");
             //index.TableCatalog = row.GetString("TABLE_CATALOG");
             //index.TableSchema = row.GetString("TABLE_SCHEMA");
@@ -144,11 +144,8 @@ namespace Sqlzor.Drivers.MySql
         protected override IndexColumnModel MapIndexColumn(DataRow row)
         {
             var indexColumn = new IndexColumnModel();
-            indexColumn.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
-            indexColumn.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
-            indexColumn.ConstraintName = row.GetString("CONSTRAINT_NAME");
-            indexColumn.TableCatalog = row.GetString("TABLE_CATALOG");
-            indexColumn.TableSchema = row.GetString("TABLE_SCHEMA");
+            indexColumn.ConstraintCatalog = row.GetString("INDEX_SCHEMA");
+            indexColumn.TableCatalog = row.GetString("TABLE_SCHEMA");
             indexColumn.TableName = row.GetString("TABLE_NAME");
             indexColumn.ColumnName = row.GetString("COLUMN_NAME");
             indexColumn.OrdinalPostion = row.GetInt("ORDINAL_POSITION");
@@ -170,11 +167,11 @@ namespace Sqlzor.Drivers.MySql
         protected override ProcedureModel MapProcedure(DataRow row)
         {
             var procedure = new ProcedureModel();
-            procedure.SpecificCatalog = row.GetString("SPECIFIC_CATALOG");
-            procedure.SpecificSchema = row.GetString("SPECIFIC_SCHEMA");
+            procedure.SpecificCatalog = row.GetString("SPECIFIC_SCHEMA");
+            procedure.SpecificSchema = null;
             procedure.SpecificName = row.GetString("SPECIFIC_NAME");
-            procedure.RoutineCatalog = row.GetString("ROUTINE_CATALOG");
-            procedure.RoutineSchema = row.GetString("ROUTINE_SCHEMA");
+            procedure.RoutineCatalog = row.GetString("ROUTINE_SCHEMA");
+            procedure.RoutineSchema = null;
             procedure.RoutineName = row.GetString("ROUTINE_NAME");
             procedure.RoutineType = row.GetString("ROUTINE_TYPE");
             procedure.Created = row.GetDateTime("CREATED");
@@ -186,8 +183,8 @@ namespace Sqlzor.Drivers.MySql
         protected override ProcedureParameterModel MapProcedureParameter(DataRow row)
         {
             var parameter = new ProcedureParameterModel();
-            parameter.SpecificCatalog = row.GetString("SPECIFIC_CATALOG");
-            parameter.SpecificSchema = row.GetString("SPECIFIC_SCHEMA");
+            parameter.SpecificCatalog = row.GetString("SPECIFIC_SCHEMA");
+            parameter.SpecificSchema = null;
             parameter.SpecificName = row.GetString("SPECIFIC_NAME");
             parameter.OrdinalPosition = row.GetInt("ORDINAL_POSITION");
             parameter.ParameterMode = row.GetString("PARAMETER_MODE");
@@ -220,8 +217,8 @@ namespace Sqlzor.Drivers.MySql
         protected override TableModel MapTable(DataRow row)
         {
             var table = new TableModel();
-            table.TableCatalog = row.GetString("TABLE_CATALOG");
-            table.TableSchema = row.GetString("TABLE_SCHEMA");
+            table.TableCatalog = row.GetString("TABLE_SCHEMA");
+            table.TableSchema = null;
             table.TableName = row.GetString("TABLE_NAME");
             table.TableType = row.GetString("TABLE_TYPE");
 
@@ -242,8 +239,8 @@ namespace Sqlzor.Drivers.MySql
         protected override ViewModel MapView(DataRow row)
         {
             var view = new ViewModel();           
-            view.TableCatalog = row.GetString("TABLE_CATALOG");
-            view.TableSchema = row.GetString("TABLE_SCHEMA");
+            view.TableCatalog = row.GetString("TABLE_SCHEMA");
+            view.TableSchema = null;
             view.TableName = row.GetString("TABLE_NAME");
 
             return view;
@@ -252,11 +249,11 @@ namespace Sqlzor.Drivers.MySql
         protected override ViewColumnModel MapViewColumn(DataRow row)
         {
             var viewColumn = new ViewColumnModel();
-            viewColumn.ViewCatalog = row.GetString("VIEW_CATALOG");
-            viewColumn.ViewSchema = row.GetString("VIEW_SCHEMA");
+            viewColumn.ViewCatalog = row.GetString("VIEW_SCHEMA");
+            viewColumn.ViewSchema = null;
             viewColumn.ViewName = row.GetString("VIEW_NAME");
-            viewColumn.TableCatalog = row.GetString("TABLE_CATALOG");
-            viewColumn.TableSchema = row.GetString("TABLE_SCHEMA");
+            viewColumn.TableCatalog = row.GetString("TABLE_SCHEMA");
+            viewColumn.TableSchema = null;
             viewColumn.TableName = row.GetString("TABLE_NAME");
             viewColumn.ColumnName = row.GetString("COLUMN_NAME");
 

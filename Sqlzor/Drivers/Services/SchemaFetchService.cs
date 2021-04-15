@@ -16,7 +16,7 @@ namespace Sqlzor.Drivers.Services
             DatabaseDriver = databaseDriver;
         }
 
-        public virtual async Task<Dictionary<string, DataTable>> GetAllSchemaCollections(
+        public virtual async Task<DataTable[]> GetAllSchemaCollections(
             string connectionString,
             int maxConnections)
         {
@@ -31,15 +31,30 @@ namespace Sqlzor.Drivers.Services
                 .WithDegreeOfParallelism(numberOfConnections)
                 .ForAll(collectionName =>
                 {
-                    var collection = GetSchemaCollection(connectionString, collectionName);
-                    var pair = new KeyValuePair<string, Task<DataTable>>(collectionName, collection);
-                    pairs.Add(pair);
+                    try
+                    {
+                        var collection = GetSchemaCollection(connectionString, collectionName);
+                        var pair = new KeyValuePair<string, Task<DataTable>>(collectionName, collection);
+                        pairs.Add(pair);
+                    }
+                    catch (Exception thrown)
+                    {
+                        Debug.WriteLine($"Unable to load collection {collectionName} [{thrown.Message}]");
+                    }
                 });
 
             var tasks = pairs.Select(item => item.Value).ToArray();
             await Task.WhenAll(tasks);
 
-            var dataTables = pairs.ToDictionary(p => p.Key, p => p.Value.Result);
+            var dataTables = pairs
+                .Where(p => p.Value.Result != null)
+                .Select(p => 
+                {
+                    p.Value.Result.TableName = p.Key; 
+                    return p.Value.Result;
+                })
+                .ToArray();
+
             return dataTables;
         }
 
@@ -48,21 +63,13 @@ namespace Sqlzor.Drivers.Services
             string collectionName,
             string[] restrictions = null)
         {
-            try
+            using (var connection = await DatabaseDriver.OpenConnection(connectionString))
             {
-                using (var connection = await DatabaseDriver.OpenConnection(connectionString))
-                {
-                    var dataTable = restrictions != null && restrictions.Any()
-                        ? connection.GetSchema(collectionName, restrictions)
-                        : connection.GetSchema(collectionName);
+                var dataTable = restrictions != null && restrictions.Any()
+                    ? connection.GetSchema(collectionName, restrictions)
+                    : connection.GetSchema(collectionName);
 
-                    return dataTable;
-                }
-            }
-            catch (Exception thrown)
-            {
-                Debug.WriteLine($"Unable to load collection {collectionName} [{thrown.Message}]");
-                return null;
+                return dataTable;
             }
         }
     }

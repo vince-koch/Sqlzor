@@ -22,18 +22,23 @@
 
 <div class="form-group">
     <label>Restriction Values</label>
-    <textarea class="form-control" id="queryTextArea" rows="10" @bind="restrictionValues" @bind:event="oninput" />
+    <textarea class="form-control" id="queryTextArea" rows="3" @bind="restrictionValues" @bind:event="oninput" />
 </div>
 
 <div class="form-group">
-    <button type="button" class="btn btn-primary" @onclick="HandleGetSchema"
+    <button type="button" class="btn btn-primary" @onclick="e => HandleGetSchemaTables(true)"
             disabled="@string.IsNullOrWhiteSpace(connectionName)">
-        <span class="fas fa-play"></span> Get Schema
+        <span class="fas fa-play"></span> Get Schema Tables
+    </button>
+
+    <button type="button" class="btn btn-primary" @onclick="HandleMapTables"
+            disabled="@(tables == null)">
+        <span class="fas fa-play"></span> Map Tables
     </button>
 </div>
 
 <BusyComponent IsBusy="@isBusy" />
-<QueryResultsComponent Error="@exception" Tables="@tables" Elapsed="@elapsed" />
+<QueryResultsComponent Error="@error" Tables="@tables" Elapsed="@elapsed" />
 
 @code {
     private string connectionName = string.Empty;
@@ -42,14 +47,14 @@
 
     private bool isBusy = false;
     private DataTable[] tables = null;
-    private Exception exception = null;
+    private Exception error = null;
     private TimeSpan? elapsed = null;
 
-    private async Task HandleGetSchema()
+    private async Task HandleGetSchemaTables(bool isRawRequested)
     {
         isBusy = true;
         tables = null;
-        exception = null;
+        error = null;
         elapsed = null;
 
         var stopwatch = new Stopwatch();
@@ -63,20 +68,42 @@
                 .Where(item => !string.IsNullOrWhiteSpace(item))
                 .ToArray();
 
-            tables = await _schemaApi.GetSchemaTablesAsync(
-                connectionName,
-                collectionName,
-                restrictions);
+            if (isRawRequested)
+            {
+                tables = await _schemaApi.GetSchemaTablesAsync(
+                    connectionName,
+                    collectionName,
+                    restrictions);
+            }
+            else
+            {
+                var schema = await _schemaApi.GetSchemaAsync(connectionName);
+                tables = schema.SourceDataTables;
+            }
+
+            tables = tables.OrderBy(item => item.TableName).ToArray();
         }
         catch (Exception thrown)
         {
-            exception = thrown;
+            error = thrown;
         }
         finally
         {
             stopwatch.Stop();
             elapsed = stopwatch.Elapsed;
             isBusy = false;
+        }
+    }
+
+    private async Task HandleMapTables()
+    {
+        try
+        {
+            var schema = await _schemaApi.MapTables(connectionName, tables);
+        }
+        catch (Exception thrown)
+        {
+            error = thrown;
         }
     }
 }

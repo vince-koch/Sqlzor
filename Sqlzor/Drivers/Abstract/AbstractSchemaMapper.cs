@@ -10,11 +10,11 @@ namespace Sqlzor.Drivers.Abstract
 {
     public abstract class AbstractSchemaMapper : ISchemaMapper
     {
-        public abstract SchemaModel MapSchema(Dictionary<string, DataTable> dataTables);
+        public abstract SchemaModel MapSchema(DataTable[] dataTables);
 
-        protected virtual List<TItem> MapCollection<TItem>(Dictionary<string, DataTable> dataTables, string collectionName, Func<DataRow, TItem> mapRow)
+        protected virtual List<TItem> MapCollection<TItem>(DataTable[] dataTables, string collectionName, Func<DataRow, TItem> mapRow)
         {
-            var dataTable = dataTables[collectionName];
+            var dataTable = dataTables.SingleOrDefault(item => item.TableName == collectionName);
             if (dataTable == null)
             {
                 return new List<TItem>();

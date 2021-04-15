@@ -9,7 +9,7 @@ namespace Sqlzor.Drivers.SqlLite
 {
     public class SQLiteSchemaMapper : AbstractSchemaMapper
     {
-        public override SchemaModel MapSchema(Dictionary<string, DataTable> dataTables)
+        public override SchemaModel MapSchema(DataTable[] dataTables)
         {
             var schema = new SchemaModel();
             schema.ProviderName = ProviderNames.SQLite;

@@ -21,15 +21,16 @@ namespace Sqlzor.Drivers.Services
             var json = File.ReadAllText(path);
             var schema = JsonConvert.DeserializeObject<SchemaModel>(json);
 
-            foreach (var pair in schema.SourceDataTables)
-            {
-                if (pair.Value != null)
-                {
-                    pair.Value.TableName = pair.Key;
-                }
-            }
-
-            return schema;
+            ////foreach (var pair in schema.SourceDataTables)
+            ////{
+            ////    if (pair.Value != null)
+            ////    {
+            ////        pair.Value.TableName = pair.Key;
+            ////    }
+            ////}
+            ////
+            ///return schema;
+            throw new NotImplementedException("todo: come back and fix this");
         }
 
         public void SaveSchema(string connectionString, SchemaModel schema)

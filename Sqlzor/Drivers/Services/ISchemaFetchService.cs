@@ -6,7 +6,7 @@ namespace Sqlzor.Drivers.Services
 {
     public interface ISchemaFetchService
     {
-        Task<Dictionary<string, DataTable>> GetAllSchemaCollections(
+        Task<DataTable[]> GetAllSchemaCollections(
             string connectionString,
             int maxConnections);
 

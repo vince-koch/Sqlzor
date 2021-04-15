@@ -7,7 +7,7 @@ namespace Sqlzor.Drivers.Models
     {
         public string ProviderName { get; set; }
 
-        public Dictionary<string, DataTable> SourceDataTables { get; set; }
+        public DataTable[] SourceDataTables { get; set; }
 
         public List<ColumnModel> Columns { get; set; }
 

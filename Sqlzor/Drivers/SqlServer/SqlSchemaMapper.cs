@@ -9,7 +9,7 @@ namespace Sqlzor.Drivers.SqlServer
 {
     public class SqlSchemaMapper : AbstractSchemaMapper
     {
-        public override SchemaModel MapSchema(Dictionary<string, DataTable> dataTables)
+        public override SchemaModel MapSchema(DataTable[] dataTables)
         {
             var schema = new SchemaModel();
             schema.ProviderName = ProviderNames.SqlServer;
