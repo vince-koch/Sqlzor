@@ -1,0 +1,15 @@
+﻿@if (IsBusy)
+{
+    <div class="align-middle">
+        <span class="spinner-border" role="status" aria-hidden="true"></span>
+        @BusyText
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsBusy { get; set; }
+
+    [Parameter]
+    public string BusyText { get; set; } = "Working...";
+}

@@ -9,8 +9,14 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+
 using Sqlzor.Data;
-using Sqlzor.Data.Drivers;
+using Sqlzor.Drivers;
+using Sqlzor.Drivers.MySql;
+using Sqlzor.Drivers.Postgres;
+using Sqlzor.Drivers.Services;
+using Sqlzor.Drivers.SqlLite;
+using Sqlzor.Drivers.SqlServer;
 
 namespace Sqlzor
 {
@@ -32,12 +38,23 @@ namespace Sqlzor
 
             services.AddSingleton<WeatherForecastService>(); 
             services.AddSingleton<AppSettingsService>();
-            services.AddSingleton<QueryService>();
+            services.AddSingleton<ConnectionStringService>();
+
+            services.AddSingleton<SchemaApi>();
+            services.AddSingleton<QueryApi>();
+
+            services.AddSingleton<ISchemaPersistanceService, SchemaPersistanceService>();
+
+            services.AddSingleton<ISchemaMapper, MySqlSchemaMapper>();
+            services.AddSingleton<ISchemaMapper, NpgsqlSchemaMapper>();
+            services.AddSingleton<ISchemaMapper, SQLiteSchemaMapper>();
+            services.AddSingleton<ISchemaMapper, SqlSchemaMapper>();
 
             services.AddSingleton<IDatabaseDriver, MySqlDatabaseDriver>();
             services.AddSingleton<IDatabaseDriver, NpgsqlDatabaseDriver>();
             services.AddSingleton<IDatabaseDriver, SQLiteDatabaseDriver>();
-            services.AddSingleton<IDatabaseDriver, SqlServerDatabaseDriver>();
+            services.AddSingleton<IDatabaseDriver, SqlDatabaseDriver>();
+            services.AddSingleton<IDatabaseDriverManagerService, DatabaseDriverManagerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

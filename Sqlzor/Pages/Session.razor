@@ -1,0 +1,134 @@
+﻿@page "/session"
+
+@using System.Data;
+@using System.Data.Common;
+@using System.Diagnostics;
+
+@using Sqlzor.Data;
+@using Sqlzor.Drivers;
+
+@implements IDisposable;
+@inject ConnectionStringService _connectionStringService;
+@inject IDatabaseDriverManagerService _databaseDriverManagerService;
+
+<h1>Session</h1>
+
+<div class="form-group">
+    <label>Connection Name</label>
+    <ConnectionNameSelect @bind-ConnectionName="@connectionName" />
+</div>
+
+<div class="form-group">
+    <label for="queryTextArea">Query</label>
+    <QueryEditorComponent @bind-QueryText="@queryText" />
+</div>
+
+<div class="form-group">
+    <button type="button" id="queryExecuteButton" class="btn btn-primary"
+            disabled="@(isBusy || string.IsNullOrWhiteSpace(connectionName) || string.IsNullOrWhiteSpace(queryText))"
+            @onclick="HandleExecuteQuery">
+        <span class="oi oi-play-circle"></span> Execute
+    </button>
+</div>
+
+<BusyComponent IsBusy="@isBusy" />
+<QueryResultsComponent Error="@error" Tables="@tables" Elapsed="@elapsed" />
+
+@code {
+    private string connectionName = null;
+    private string openConnectionName = null;
+    private string queryText = null;
+    private DbConnection connection = null;
+    private DbCommand command = null;
+    private Exception error = null;
+    private DataTable[] tables = null;
+    private TimeSpan? elapsed = null;
+    private bool isConnected = false;
+    private bool isBusy = false;
+
+    public void Dispose()
+    {
+        Disconnect();
+    }
+
+    private async Task Connect()
+    {
+        Disconnect();
+
+        if (!string.IsNullOrWhiteSpace(connectionName))
+        {
+            var connectionStringEntry = await _connectionStringService.GetConnectionStringEntry(connectionName);
+            var databaseDriver = _databaseDriverManagerService.GetDriver(connectionStringEntry.ProviderName);
+            connection = await databaseDriver.OpenConnection(connectionStringEntry.ConnectionString);
+            openConnectionName = connectionName;
+            isConnected = true;
+        }
+    }
+
+    private async Task HandleExecuteQuery()
+    {
+        isBusy = true;
+        error = null;
+        tables = null;
+        elapsed = null;
+
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        try
+        {
+            command?.Dispose();
+            command = null;
+
+            if (!isConnected || connectionName != openConnectionName)
+            {
+                await Connect();
+                // todo: toast?
+            }
+
+            command = connection.CreateCommand();
+            command.CommandType = CommandType.Text;
+            command.CommandText = queryText;
+            command.CommandTimeout = 0;
+
+            var list = new List<DataTable>();
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                do
+                {
+                    var dataTable = new DataTable();
+                    dataTable.Load(reader);
+                    list.Add(dataTable);
+                }
+                while (!reader.IsClosed && reader.HasRows);
+            }
+
+            tables = list.ToArray();
+        }
+        catch (Exception thrown)
+        {
+            error = thrown;
+        }
+        finally
+        {
+            command?.Dispose();
+            command = null;
+
+            stopwatch.Stop();
+            elapsed = stopwatch.Elapsed;
+            isBusy = false;
+        }
+    }
+
+    private void Disconnect()
+    {
+        command?.Dispose();
+        command = null;
+
+        connection?.Close();
+        connection?.Dispose();
+        connection = null;
+
+        isConnected = false;
+    }
+}

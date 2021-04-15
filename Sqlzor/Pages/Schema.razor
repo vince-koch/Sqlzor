@@ -1,11 +1,12 @@
 ﻿@page "/schema"
 
-@using System.Data
-@using System.Linq
+@using System.Data;
+@using System.Diagnostics;
+@using System.Linq;
 
-@using Sqlzor.Data
+@using Sqlzor.Data;
 
-@inject QueryService _queryService
+@inject SchemaApi _schemaApi;
 
 <h1>Schema</h1>
 
@@ -31,73 +32,38 @@
     </button>
 </div>
 
-@if (isExecuting || table != null || exception != null)
-{
-    <h1>Results</h1>
-}
-
-@if (isExecuting)
-{
-    <div class="align-middle">
-        <span class="spinner-border" role="status" aria-hidden="true"></span>
-        Loading...
-    </div>
-}
-
-@if (table != null)
-{
-    <table class="table table-sm table-light table-striped" style="font-size: x-small">
-        <thead>
-            <tr>
-                @foreach (var column in table.Columns.Cast<DataColumn>())
-                {
-                    <th>@column.ColumnName</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var row in table.Rows.Cast<DataRow>())
-            {
-                <tr>
-                    @foreach (var item in row.ItemArray)
-                    {
-                        <td>@item</td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@if (exception != null)
-{
-    <ExceptionComponent Exception="@exception" />
-}
+<BusyComponent IsBusy="@isBusy" />
+<QueryResultsComponent Error="@exception" Tables="@tables" Elapsed="@elapsed" />
 
 @code {
     private string connectionName = string.Empty;
     private string collectionName = string.Empty;
     private string restrictionValues = string.Empty;
 
-    private bool isExecuting = false;
-    private DataTable table = null;
+    private bool isBusy = false;
+    private DataTable[] tables = null;
     private Exception exception = null;
+    private TimeSpan? elapsed = null;
 
     private async Task HandleGetSchema()
     {
+        isBusy = true;
+        tables = null;
+        exception = null;
+        elapsed = null;
+
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
         try
         {
-            isExecuting = true;
-            table = null;
-            exception = null;
-
             var restrictions = restrictionValues
                 .Replace("\r\n", "\n")
                 .Split('\n')
                 .Where(item => !string.IsNullOrWhiteSpace(item))
                 .ToArray();
 
-            table = await _queryService.GetSchemaAsync(
+            tables = await _schemaApi.GetSchemaTablesAsync(
                 connectionName,
                 collectionName,
                 restrictions);
@@ -108,7 +74,9 @@
         }
         finally
         {
-            isExecuting = false;
+            stopwatch.Stop();
+            elapsed = stopwatch.Elapsed;
+            isBusy = false;
         }
     }
 }

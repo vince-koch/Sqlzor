@@ -1,12 +1,11 @@
 ﻿@page "/query"
 
-@using System.Data
-@using System.Diagnostics
-@using Sqlzor.Data
+@using System.Data;
+@using System.Diagnostics;
+@using Sqlzor.Data;
 
-@inject IJSRuntime _jsRuntime
-@inject QueryService _queryService
-@inject AppSettingsService _appSettings
+@inject QueryApi _queryApi;
+@inject AppSettingsService _appSettings;
 
 <h1>Query</h1>
 
@@ -17,69 +16,28 @@
 
 <div class="form-group">
     <label for="queryTextArea">Query</label>
-    <textarea class="form-control" id="queryTextArea" rows="10"
-              @bind="queryText" @bind:event="oninput"
-              style="font-family: Consolas,Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;" />
+    <QueryEditorComponent @bind-QueryText="@queryText" />
 </div>
 
 <div class="form-group">
     <button type="button" id="queryExecuteButton" class="btn btn-primary"
-            disabled="@(connectionName == string.Empty || queryText == string.Empty)"
+            disabled="@(isBusy || string.IsNullOrWhiteSpace(connectionName) || string.IsNullOrWhiteSpace(queryText))"
             @onclick="HandleExecuteQuery">
         <span class="oi oi-play-circle"></span> Execute
     </button>
 </div>
 
-@if (isExecuting || table != null || exception != null)
-{
-    <h1>Results</h1>
-}
-
-@if (isExecuting)
-{
-    <div class="align-middle">
-        <span class="spinner-border" role="status" aria-hidden="true"></span>
-        Loading...
-    </div>
-}
-
-@if (table != null)
-{
-    <table class="table table-sm table-light table-striped" style="font-size: x-small">
-        <thead>
-            <tr>
-                @foreach (var column in table.Columns.Cast<DataColumn>())
-                {
-                    <th>@column.ColumnName</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var row in table.Rows.Cast<DataRow>())
-            {
-                <tr>
-                    @foreach (var item in row.ItemArray)
-                    {
-                        <td>@item</td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@if (exception != null)
-{
-    <ExceptionComponent Exception="@exception" />
-}
+<BusyComponent IsBusy="@isBusy" />
+<QueryResultsComponent Error="@error" Tables="@tables" Elapsed="@elapsed" />
 
 @code {
     private string connectionName = string.Empty;
     private string queryText = null;
 
-    private bool isExecuting = false;
-    private DataTable table = null;
-    private Exception exception = null;
+    private bool isBusy = false;
+    private TimeSpan? elapsed = null;
+    private DataTable[] tables = null;
+    private Exception error = null;
 
     protected override Task OnInitializedAsync()
     {
@@ -87,34 +45,32 @@
         return Task.FromResult(true);
     }
 
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Debug.WriteLine(string.Format("OnAfterRender => {0} [_jsRuntime={1}]", firstRender, _jsRuntime));
-            _jsRuntime.InvokeVoidAsync("configureTextEditor", "queryTextArea", "queryExecuteButton");
-        }
-    }
-
     private async Task HandleExecuteQuery()
     {
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        isBusy = true;
+        elapsed = null;
+        tables = null;
+        error = null;
+
         try
         {
-            isExecuting = true;
-            table = null;
-            exception = null;
-
-            table = await _queryService.ExecuteAsync(
+            tables = await _queryApi.ExecuteAsync(
                 connectionName,
                 queryText);
         }
         catch (Exception thrown)
         {
-            exception = thrown;
+            error = thrown;
         }
         finally
         {
-            isExecuting = false;
+            stopwatch.Stop();
+
+            elapsed = stopwatch.Elapsed;
+            isBusy = false;
         }
     }
 }

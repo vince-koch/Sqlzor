@@ -1,0 +1,31 @@
+﻿@using System.Diagnostics;
+
+@inject IJSRuntime _jsRuntime;
+
+<textarea class="form-control" id="@componentId" rows="10"
+          @bind="QueryText" @oninput="OnQueryTextInput"
+          style="font-family: Consolas,Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;" />
+
+@code {
+    private string componentId = "queryEditor" + Guid.NewGuid().ToString().Replace("-", string.Empty);
+
+    [Parameter]
+    public string QueryText { get; set; }
+
+    [Parameter]
+    public EventCallback<string> QueryTextChanged { get; set; }
+
+    protected override void OnAfterRender(bool isFirstRender)
+    {
+        if (isFirstRender)
+        {
+            Debug.WriteLine(string.Format("OnAfterRender => {0} [_jsRuntime={1}]", isFirstRender, _jsRuntime));
+            _jsRuntime.InvokeVoidAsync("configureTextEditor", componentId, "queryExecuteButton");
+        }
+    }
+
+    private async Task OnQueryTextInput(ChangeEventArgs e)
+    {
+        await QueryTextChanged.InvokeAsync(e.Value as string);
+    }
+}
