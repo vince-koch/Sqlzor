@@ -33,36 +33,36 @@ namespace Sqlzor.Drivers.Abstract
             }
         }
 
-        protected abstract Column MapColumn(DataRow row);
+        protected abstract ColumnModel MapColumn(DataRow row);
 
-        protected abstract Database MapDatabase(DataRow row);
+        protected abstract DatabaseModel MapDatabase(DataRow row);
 
-        protected abstract DataSourceInformation MapDataSourceInformation(DataRow row);
+        protected abstract DataSourceInformationModel MapDataSourceInformation(DataRow row);
 
-        protected abstract DataType MapDataType(DataRow row);
+        protected abstract DataTypeModel MapDataType(DataRow row);
 
-        protected abstract ForeignKey MapForeignKey(DataRow row);
+        protected abstract ForeignKeyModel MapForeignKey(DataRow row);
 
-        protected abstract Models.Index MapIndex(DataRow row);
+        protected abstract Models.IndexModel MapIndex(DataRow row);
 
-        protected abstract IndexColumn MapIndexColumn(DataRow row);
+        protected abstract IndexColumnModel MapIndexColumn(DataRow row);
 
-        protected abstract MetaDataCollection MapMetaDataCollection(DataRow row);
+        protected abstract MetaDataCollectionModel MapMetaDataCollection(DataRow row);
 
-        protected abstract Procedure MapProcedure(DataRow row);
+        protected abstract ProcedureModel MapProcedure(DataRow row);
 
-        protected abstract ProcedureParameter MapProcedureParameter(DataRow row);
+        protected abstract ProcedureParameterModel MapProcedureParameter(DataRow row);
 
-        protected abstract ReservedWord MapReservedWord(DataRow row);
+        protected abstract ReservedWordModel MapReservedWord(DataRow row);
 
-        protected abstract Restriction MapRestriction(DataRow row);
+        protected abstract RestrictionModel MapRestriction(DataRow row);
 
-        protected abstract Table MapTable(DataRow row);
+        protected abstract TableModel MapTable(DataRow row);
 
-        protected abstract User MapUser(DataRow row);
+        protected abstract UserModel MapUser(DataRow row);
 
-        protected abstract View MapView(DataRow row);
+        protected abstract ViewModel MapView(DataRow row);
 
-        protected abstract ViewColumn MapViewColumn(DataRow row);
+        protected abstract ViewColumnModel MapViewColumn(DataRow row);
     }
 }

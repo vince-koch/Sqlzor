@@ -3,7 +3,7 @@
 @if (Table != null)
 {
     <h4 @onclick="HandleClick">
-        <span class=@(isCollapsed ? "oi oi-chevron-right" : "oi oi-chevron-bottom") aria-hidden="true"></span> @(Table.TableName ?? "(Unnamed Table)")
+        <span class=@(isCollapsed ? "fas fa-chevron-right" : "fas fa-chevron-bottom") aria-hidden="true"></span> @(Table.TableName ?? "(Unnamed Table)")
     </h4>
 
     @if (!isCollapsed)
