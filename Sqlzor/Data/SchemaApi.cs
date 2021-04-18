@@ -25,12 +25,21 @@ namespace Sqlzor.Data
             _schemaTreeBuilder = schemaTreeBuilder;
         }
 
+        public async Task<Node> GetHierarchyAsync(string connectionName)
+        {
+            var connectionEntry = await _connectionStringService.GetConnectionStringEntry(connectionName);
+            var schema = await _databaseDriverManagerService.GetSchema(connectionEntry.ProviderName, connectionEntry.ConnectionString);
+            
+            var connectionNode = _schemaTreeBuilder.BuildTree(schema);
+            connectionNode.Name = connectionName;
+
+            return connectionNode;
+        }
+
         public async Task<SchemaModel> GetSchemaAsync(string connectionName)
         {
             var connectionEntry = await _connectionStringService.GetConnectionStringEntry(connectionName);
             var schema = await _databaseDriverManagerService.GetSchema(connectionEntry.ProviderName, connectionEntry.ConnectionString);
-            var connectionNode = _schemaTreeBuilder.BuildTree(schema);
-
             return schema;
         }
 
@@ -62,9 +71,11 @@ namespace Sqlzor.Data
             return schema;
         }
 
-        public Task<ConnectionNode> BuildHeirarchy(SchemaModel schema)
+        public Task<Node> BuildHeirarchy(SchemaModel schema)
         {
-            throw new NotImplementedException();
+            var treeBuilder = new SchemaTreeBuilder();
+            var node = treeBuilder.BuildTree(schema);
+            return Task.FromResult(node);
         }
     }
 }

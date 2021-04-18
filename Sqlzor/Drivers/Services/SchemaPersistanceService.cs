@@ -30,7 +30,12 @@ namespace Sqlzor.Drivers.Services
             ////}
             ////
             ///return schema;
-            throw new NotImplementedException("todo: come back and fix this");
+            
+            //throw new NotImplementedException("todo: come back and fix this");
+            System.Diagnostics.Debug.WriteLine("================================================================");
+            System.Diagnostics.Debug.WriteLine("SchemaPersistanceService.LoadSchema :: Come back and fix this!!!");
+            System.Diagnostics.Debug.WriteLine("================================================================");
+            return null;
         }
 
         public void SaveSchema(string connectionString, SchemaModel schema)

@@ -39,7 +39,6 @@ namespace Sqlzor.Drivers.SqlLite
         {
             var column = new ColumnModel();
             column.TableCatalog = row.GetString("TABLE_CATALOG");
-            column.TableSchema = row.GetString("TABLE_SCHEMA");
             column.TableName = row.GetString("TABLE_NAME");
             column.ColumnName = row.GetString("COLUMN_NAME");
             column.OrdinalPosition = row.GetInt("ORDINAL_POSITION");

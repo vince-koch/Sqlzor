@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,80 +10,159 @@ namespace Sqlzor.Tree
 {
     public class SchemaTreeBuilder
     {
-        public ConnectionNode BuildTree(SchemaModel schema)
+        public Node BuildTree(SchemaModel schema)
         {
-            var connectionNode = new ConnectionNode();
-            var databaseNodes = BuildDatabases(schema, connectionNode);
-            var tableNodes = BuildTables(schema, databaseNodes);
-            var viewNodes = BuildViews(schema, databaseNodes);
-            var procedureNodes = BuildProcedures(schema, databaseNodes);
+            var allModels = new List<object>();
+            allModels.AddRange(schema.Columns);
+            allModels.AddRange(schema.Databases);
+            allModels.AddRange(schema.DataSourceInformation);
+            allModels.AddRange(schema.ForeignKeys);
+            allModels.AddRange(schema.IndexColumns);
+            allModels.AddRange(schema.Indexes);
+            allModels.AddRange(schema.ProcedureParameters);
+            allModels.AddRange(schema.Procedures);
+            allModels.AddRange(schema.Tables);
+            allModels.AddRange(schema.Users);
+            allModels.AddRange(schema.ViewColumns);
+            allModels.AddRange(schema.Views);
 
-            return connectionNode;
-        }
+            var allNodes = allModels.Select(item => CreateNode(item)).ToList();
+            var childNodes = allNodes.SelectMany(item => item.Children).ToArray();
+            allNodes.AddRange(childNodes);
+            allNodes = allNodes.OrderBy(item => item.Path).ToList();
 
-        private DatabaseNode[] BuildDatabases(SchemaModel schema, ConnectionNode connectionNode)
-        {
-            var databaseNodes = schema.Databases
-                .Select(database => new DatabaseNode(database))
+            foreach (var node in allNodes.Where(item => item.Parent == null))
+            {
+                var segments = node.Path.Split('/');
+                var parentPath = string.Join("/", segments.Take(segments.Length - 1));
+                var parentNode = allNodes.Where(item => item.Path == parentPath).SingleOrDefault();
+                if (parentNode != null && parentNode != node)
+                {
+                    node.Parent = parentNode;
+                }
+            }
+
+            var rootNode = allNodes.Where(item => item.Path == string.Empty).Single();
+            var unparentedNodes = allNodes
+                .Where(item => item.Parent == null)
+                .Where(item => item.Path != string.Empty)
                 .ToArray();
 
-            databaseNodes.ForEach(node => node.Parent = connectionNode);
-
-            return databaseNodes;
-        }
-
-        private TableNode[] BuildTables(SchemaModel schema, DatabaseNode[] databaseNodes)
-        {
-            var tableNodes = new List<TableNode>();
-
-            foreach (var table in schema.Tables)
+            if (unparentedNodes.Length > 0)
             {
-                var tableNode = new TableNode(table);
-
-                tableNode.Parent = databaseNodes
-                    .Where(item => item.Name == table.TableCatalog)
-                    .Single();
-
-                tableNodes.Add(tableNode);
+                var unparented = AddFolderNode(rootNode, "Unparented");
+                unparentedNodes.ForEach(item => item.Parent = unparented);
+                DebugNode(rootNode, 0);
             }
 
-            return tableNodes.ToArray();
+            return rootNode;
         }
 
-        private ViewNode[] BuildViews(SchemaModel schema, DatabaseNode[] databaseNodes)
+        private Node CreateNode(object model)
         {
-            var viewNodes = new List<ViewNode>();
+            var node = new Node();
+            node.Model = model;
 
-            foreach (var view in schema.Views)
+            switch (model.GetType().Name)
             {
-                var viewNode = new ViewNode(view);
+                case nameof(ColumnModel):
+                    var column = model as ColumnModel;
+                    node.Path = $"/Databases/{column.TableCatalog}/Tables/{column.TableSchema}.{column.TableName}/Columns/{column.ColumnName}";
+                    break;
 
-                viewNode.Parent = databaseNodes
-                    .Where(item => item.Name == view.TableCatalog)
-                    .Single();
+                case nameof(DatabaseModel):
+                    var database = model as DatabaseModel;
+                    node.Path = $"/Databases/{database.DatabaseName}";
+                    AddFolderNode(node, "Tables");
+                    AddFolderNode(node, "Views");
+                    AddFolderNode(node, "Procedures");
+                    AddFolderNode(node, "Users");
+                    break;
 
-                viewNodes.Add(viewNode);
+                case nameof(DataSourceInformationModel):
+                    node.Path = string.Empty;
+                    AddFolderNode(node, "Databases");
+                    break;
+
+                case nameof(ForeignKeyModel):
+                    var foreignKey = model as ForeignKeyModel;
+                    node.Path = $"/Databases/{foreignKey.TableCatalog}/Tables/{foreignKey.TableSchema}.{foreignKey.TableName}/Keys/{foreignKey.ConstraintName}";
+                    break;
+
+                case nameof(IndexColumnModel):
+                    var indexColumn = model as IndexColumnModel;
+                    node.Path = $"/Databases/{indexColumn.TableCatalog}/Tables/{indexColumn.TableSchema}.{indexColumn.TableName}/Indexes/{indexColumn.IndexName}/Columns/{indexColumn.ColumnName}";
+                    break;
+
+                case nameof(IndexModel):
+                    var index = model as IndexModel;
+                    node.Path = $"/Databases/{index.TableCatalog}/Tables/{index.TableSchema}.{index.TableName}/Indexes/{index.IndexName}";
+                    AddFolderNode(node, "Columns");
+                    break;
+
+                case nameof(ProcedureModel):
+                    var procedure = model as ProcedureModel;
+                    node.Path = $"/Databases/{procedure.RoutineCatalog}/Procedures/{procedure.RoutineSchema}.{procedure.RoutineName}";
+                    break;
+
+                case nameof(TableModel):
+                    var table = model as TableModel;
+                    node.Path = $"/Databases/{table.TableCatalog}/Tables/{table.TableSchema}.{table.TableName}";
+                    AddFolderNode(node, "Columns");
+                    AddFolderNode(node, "Indexes");
+                    AddFolderNode(node, "Keys");
+                    break;
+
+                case nameof(UserModel):
+                    var user = model as UserModel;
+                    node.Path = $"/Users/{user.UserName}";
+                    break;
+
+                case nameof(ViewColumnModel):
+                    var viewColumn = model as ViewColumnModel;
+                    node.Path = $"/Databases/{viewColumn.TableCatalog}/Tables/{viewColumn.TableSchema}.{viewColumn.TableName}/Columns/{viewColumn.ColumnName}";
+                    break;
+
+                case nameof(ViewModel):
+                    var view = model as ViewModel;
+                    node.Path = $"/Databases/{view.TableCatalog}/Tables/{view.TableSchema}.{view.TableName}";
+                    AddFolderNode(node, "Columns");
+                    break;
+
+                case nameof(DataTypeModel):
+                case nameof(SchemaModel):
+                default:
+                    break;
             }
 
-            return viewNodes.ToArray();
+            return node;
         }
 
-        private ProcedureNode[] BuildProcedures(SchemaModel schema, DatabaseNode[] databaseNodes)
+        private Node AddFolderNode(Node parent, string name)
         {
-            var procedureNodes = new List<ProcedureNode>();
+            var child = new Node();
+            child.Parent = parent;
+            child.Path = parent.Path + "/" + name;
+            return child;
+        }
 
-            foreach (var procedure in schema.Procedures)
+        private void DebugNode(Node node, int depth)
+        {
+            var indent = new string(' ', depth * 4);
+            System.Diagnostics.Debug.WriteLine($"{indent}{node.Name}    [{DebugType(node)}: {node.Path}]");
+            foreach (var child in node.Children)
             {
-                var procedureNode = new ProcedureNode(procedure);
-
-                procedureNode.Parent = databaseNodes
-                    .Where(item => item.Name == procedure.RoutineCatalog)
-                    .Single();
-
-                procedureNodes.Add(procedureNode);
+                DebugNode(child, depth + 1);
             }
+        }
 
-            return procedureNodes.ToArray();
+        private string DebugType(Node node)
+        {
+            var type = node.Model != null
+                ? node.Model.GetType().Name
+                : "Folder";
+
+            return type;
         }
     }
 }
