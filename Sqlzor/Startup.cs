@@ -17,6 +17,7 @@ using Sqlzor.Drivers.Postgres;
 using Sqlzor.Drivers.Services;
 using Sqlzor.Drivers.SqlLite;
 using Sqlzor.Drivers.SqlServer;
+using Sqlzor.Tree;
 
 namespace Sqlzor
 {
@@ -36,7 +37,6 @@ namespace Sqlzor
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            services.AddSingleton<WeatherForecastService>(); 
             services.AddSingleton<AppSettingsService>();
             services.AddSingleton<ConnectionStringService>();
 
@@ -44,6 +44,7 @@ namespace Sqlzor
             services.AddSingleton<QueryApi>();
 
             services.AddSingleton<ISchemaPersistanceService, SchemaPersistanceService>();
+            services.AddSingleton<SchemaTreeBuilder>();
 
             services.AddSingleton<ISchemaMapper, MySqlSchemaMapper>();
             services.AddSingleton<ISchemaMapper, NpgsqlSchemaMapper>();

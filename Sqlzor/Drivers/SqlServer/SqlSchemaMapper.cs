@@ -9,7 +9,7 @@ namespace Sqlzor.Drivers.SqlServer
 {
     public class SqlSchemaMapper : AbstractSchemaMapper
     {
-        public override SchemaModel MapSchema(Dictionary<string, DataTable> dataTables)
+        public override SchemaModel MapSchema(DataTable[] dataTables)
         {
             var schema = new SchemaModel();
             schema.ProviderName = ProviderNames.SqlServer;
@@ -35,9 +35,9 @@ namespace Sqlzor.Drivers.SqlServer
             return schema;
         }
 
-        protected override Column MapColumn(DataRow row)
+        protected override ColumnModel MapColumn(DataRow row)
         {
-            var column = new Column();
+            var column = new ColumnModel();
             column.TableCatalog = row.GetString("TABLE_CATALOG");
             column.TableSchema = row.GetString("TABLE_SCHEMA");
             column.TableName = row.GetString("TABLE_NAME");
@@ -51,17 +51,17 @@ namespace Sqlzor.Drivers.SqlServer
             return column;
         }
 
-        protected override Database MapDatabase(DataRow row)
+        protected override DatabaseModel MapDatabase(DataRow row)
         {
-            var database = new Database();
+            var database = new DatabaseModel();
             database.DatabaseName = row.GetString("DATABASE_NAME");
 
             return database;
         }
 
-        protected override DataSourceInformation MapDataSourceInformation(DataRow row)
+        protected override DataSourceInformationModel MapDataSourceInformation(DataRow row)
         {
-            var dataSourceInformation = new DataSourceInformation();
+            var dataSourceInformation = new DataSourceInformationModel();
             dataSourceInformation.CompositeIdentifierSeparatorPattern = row.GetString("CompositeIdentifierSeparatorPattern");
             dataSourceInformation.DataSourceProductName = row.GetString("DataSourceProductName");
             dataSourceInformation.DataSourceProductVersion = row.GetString("DataSourceProductVersion");
@@ -82,9 +82,9 @@ namespace Sqlzor.Drivers.SqlServer
             return dataSourceInformation;
         }
 
-        protected override DataType MapDataType(DataRow row)
+        protected override DataTypeModel MapDataType(DataRow row)
         {
-            var dataType = new DataType();
+            var dataType = new DataTypeModel();
             dataType.TypeName = row.GetString("TypeName");
             dataType.ProviderDbType = row.GetInt("ProviderDbType");
             dataType.ColumnSize = row.GetLong("ColumnSize");
@@ -112,9 +112,9 @@ namespace Sqlzor.Drivers.SqlServer
             return dataType;
         }
 
-        protected override ForeignKey MapForeignKey(DataRow row)
+        protected override ForeignKeyModel MapForeignKey(DataRow row)
         {
-            var foreignKey = new ForeignKey();
+            var foreignKey = new ForeignKeyModel();
             foreignKey.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
             foreignKey.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
             foreignKey.ConstraintName = row.GetString("CONSTRAINT_NAME");
@@ -125,9 +125,9 @@ namespace Sqlzor.Drivers.SqlServer
             return foreignKey;
         }
 
-        protected override Models.Index MapIndex(DataRow row)
+        protected override Models.IndexModel MapIndex(DataRow row)
         {
-            var index = new Models.Index();
+            var index = new Models.IndexModel();
             index.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
             index.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
             index.ConstraintName = row.GetString("CONSTRAINT_NAME");
@@ -142,9 +142,9 @@ namespace Sqlzor.Drivers.SqlServer
             return index;
         }
 
-        protected override IndexColumn MapIndexColumn(DataRow row)
+        protected override IndexColumnModel MapIndexColumn(DataRow row)
         {
-            var indexColumn = new IndexColumn();
+            var indexColumn = new IndexColumnModel();
             indexColumn.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
             indexColumn.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
             indexColumn.ConstraintName = row.GetString("CONSTRAINT_NAME");
@@ -158,9 +158,9 @@ namespace Sqlzor.Drivers.SqlServer
             return indexColumn;
         }
 
-        protected override MetaDataCollection MapMetaDataCollection(DataRow row)
+        protected override MetaDataCollectionModel MapMetaDataCollection(DataRow row)
         {
-            var collection = new MetaDataCollection();
+            var collection = new MetaDataCollectionModel();
             collection.CollectionName = row.GetString("CollectionName");
             collection.NumberOfRestrictions = row.GetInt("NumberOfRestrictions");
             collection.NumberOfIdentifierParts = row.GetInt("NumberOfIdentifierParts");
@@ -168,9 +168,9 @@ namespace Sqlzor.Drivers.SqlServer
             return collection;
         }
 
-        protected override Procedure MapProcedure(DataRow row)
+        protected override ProcedureModel MapProcedure(DataRow row)
         {
-            var procedure = new Procedure();
+            var procedure = new ProcedureModel();
             procedure.SpecificCatalog = row.GetString("SPECIFIC_CATALOG");
             procedure.SpecificSchema = row.GetString("SPECIFIC_SCHEMA");
             procedure.SpecificName = row.GetString("SPECIFIC_NAME");
@@ -184,9 +184,9 @@ namespace Sqlzor.Drivers.SqlServer
             return procedure;
         }
 
-        protected override ProcedureParameter MapProcedureParameter(DataRow row)
+        protected override ProcedureParameterModel MapProcedureParameter(DataRow row)
         {
-            var parameter = new ProcedureParameter();
+            var parameter = new ProcedureParameterModel();
             parameter.SpecificCatalog = row.GetString("SPECIFIC_CATALOG");
             parameter.SpecificSchema = row.GetString("SPECIFIC_SCHEMA");
             parameter.SpecificName = row.GetString("SPECIFIC_NAME");
@@ -200,17 +200,17 @@ namespace Sqlzor.Drivers.SqlServer
             return parameter;
         }
 
-        protected override ReservedWord MapReservedWord(DataRow row)
+        protected override ReservedWordModel MapReservedWord(DataRow row)
         {
-            var reservedWord = new ReservedWord();
+            var reservedWord = new ReservedWordModel();
             reservedWord.Word = row.GetString("ReservedWord");
 
             return reservedWord;
         }
 
-        protected override Restriction MapRestriction(DataRow row)
+        protected override RestrictionModel MapRestriction(DataRow row)
         {
-            var restriction = new Restriction();
+            var restriction = new RestrictionModel();
             restriction.CollectionName = row.GetString("CollectionName");
             restriction.RestrictionName = row.GetString("RestrictionName");
             restriction.RestrictionNumber = row.GetInt("RestrictionNumber");
@@ -218,9 +218,9 @@ namespace Sqlzor.Drivers.SqlServer
             return restriction;
         }
 
-        protected override Table MapTable(DataRow row)
+        protected override TableModel MapTable(DataRow row)
         {
-            var table = new Table();
+            var table = new TableModel();
             table.TableCatalog = row.GetString("TABLE_CATALOG");
             table.TableSchema = row.GetString("TABLE_SCHEMA");
             table.TableName = row.GetString("TABLE_NAME");
@@ -229,9 +229,9 @@ namespace Sqlzor.Drivers.SqlServer
             return table;
         }
 
-        protected override User MapUser(DataRow row)
+        protected override UserModel MapUser(DataRow row)
         {
-            var user = new User();
+            var user = new UserModel();
             user.Id = row.GetString("UID");
             user.UserName = row.GetString("USER_NAME");
             user.CreateDate = row.GetDateTime("CREATEDATE");
@@ -240,9 +240,9 @@ namespace Sqlzor.Drivers.SqlServer
             return user;
         }
 
-        protected override View MapView(DataRow row)
+        protected override ViewModel MapView(DataRow row)
         {
-            var view = new View();
+            var view = new ViewModel();
             view.TableCatalog = row.GetString("TABLE_CATALOG");
             view.TableSchema = row.GetString("TABLE_SCHEMA");
             view.TableName = row.GetString("TABLE_NAME");
@@ -250,9 +250,9 @@ namespace Sqlzor.Drivers.SqlServer
             return view;
         }
 
-        protected override ViewColumn MapViewColumn(DataRow row)
+        protected override ViewColumnModel MapViewColumn(DataRow row)
         {
-            var viewColumn = new ViewColumn();
+            var viewColumn = new ViewColumnModel();
             viewColumn.ViewCatalog = row.GetString("VIEW_CATALOG");
             viewColumn.ViewSchema = row.GetString("VIEW_SCHEMA");
             viewColumn.ViewName = row.GetString("VIEW_NAME");

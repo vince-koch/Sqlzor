@@ -7,6 +7,6 @@ namespace Sqlzor.Drivers
 {
     public interface ISchemaMapper
     {
-        SchemaModel MapSchema(Dictionary<string, DataTable> dataTables);
+        SchemaModel MapSchema(DataTable[] dataTables);
     }
 }

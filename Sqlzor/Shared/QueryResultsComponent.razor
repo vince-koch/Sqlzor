@@ -17,7 +17,7 @@
         <div class="accordion accordion-flush" id="queryResultsAccordion">
             @foreach (var table in Tables)
             {
-                <DataTableComponent Table="@table" />
+                <DataTableComponent Table="@table" IsCollapsible="@(Tables.Length > 2)" IsInitiallyCollapsed="@(Tables.Length > 2)" />
             }
         </div>
     }

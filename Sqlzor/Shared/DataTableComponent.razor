@@ -2,9 +2,18 @@
 
 @if (Table != null)
 {
-    <h4 @onclick="HandleClick">
-        <span class=@(isCollapsed ? "oi oi-chevron-right" : "oi oi-chevron-bottom") aria-hidden="true"></span> @(Table.TableName ?? "(Unnamed Table)")
-    </h4>
+    if (IsCollapsible)
+    {
+        <h5 class="alert alert-dark">
+            <a href="#" class="text-dark" @onclick="HandleToggleCollapse" @onclick:preventDefault>
+                <span class=@(isCollapsed ? "fas fa-chevron-right" : "fas fa-chevron-down") aria-hidden="true"></span> @(Table.TableName ?? "(Unnamed Table)")
+            </a>
+        </h5>
+    }
+    else
+    {
+        <h5 class="alert alert-dark">@(Table.TableName ?? "(Unnamed Table)")</h5>
+    }
 
     @if (!isCollapsed)
     {
@@ -35,14 +44,32 @@
 @code
 {
     private string accordionItemId = "accordionItem-" + Guid.NewGuid().ToString();
+    private bool isInitiallyCollapsed = false;
     private bool isCollapsed = false;
 
     [Parameter]
     public DataTable Table { get; set; } = null;
 
-    private void HandleClick()
+    [Parameter]
+    public bool IsCollapsible { get; set; } = false;
+
+    [Parameter]
+    public bool IsInitiallyCollapsed
+    {
+        get
+        {
+            return isInitiallyCollapsed;
+        }
+
+        set
+        {
+            isCollapsed = value;
+            isInitiallyCollapsed = value;
+        }
+    }
+
+    private void HandleToggleCollapse()
     {
         isCollapsed = !isCollapsed;
-        Console.WriteLine("isCollapsed is now ", isCollapsed);
     }
 }

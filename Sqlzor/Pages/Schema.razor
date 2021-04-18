@@ -5,6 +5,8 @@
 @using System.Linq;
 
 @using Sqlzor.Data;
+@using Sqlzor.Drivers.Models;
+@using Sqlzor.Tree;
 
 @inject SchemaApi _schemaApi;
 
@@ -22,18 +24,28 @@
 
 <div class="form-group">
     <label>Restriction Values</label>
-    <textarea class="form-control" id="queryTextArea" rows="10" @bind="restrictionValues" @bind:event="oninput" />
+    <textarea class="form-control" id="queryTextArea" rows="3" @bind="restrictionValues" @bind:event="oninput" />
 </div>
 
 <div class="form-group">
-    <button type="button" class="btn btn-primary" @onclick="HandleGetSchema"
+    <button type="button" class="btn btn-primary" @onclick="e => HandleGetSchemaTables(true)"
             disabled="@string.IsNullOrWhiteSpace(connectionName)">
-        <span class="oi oi-play-circle"></span> Get Schema
+        <span class="fas fa-play"></span> Get Schema Tables
+    </button>
+
+    <button type="button" class="btn btn-primary" @onclick="HandleLoadHierarchy"
+            disabled="@string.IsNullOrWhiteSpace(connectionName)">
+        <span class="fas fa-play"></span> Load Hierarchy
     </button>
 </div>
 
 <BusyComponent IsBusy="@isBusy" />
-<QueryResultsComponent Error="@exception" Tables="@tables" Elapsed="@elapsed" />
+<Tree Nodes="hierarchy"
+      HasChildNodes="item => item.Children.Any()"
+      ChildSelector="item => item.Children">
+    <TitleTemplate><i class="@GetIconClass(context)"></i> @context.Name?.Trim('.')</TitleTemplate>
+</Tree>
+<QueryResultsComponent Error="@error" Tables="@tables" Elapsed="@elapsed" />
 
 @code {
     private string connectionName = string.Empty;
@@ -42,14 +54,52 @@
 
     private bool isBusy = false;
     private DataTable[] tables = null;
-    private Exception exception = null;
+    private Exception error = null;
     private TimeSpan? elapsed = null;
+    private Node[] hierarchy = null;
 
-    private async Task HandleGetSchema()
+    private string GetIconClass(Node node)
+    {
+        switch (node.Model?.GetType()?.Name)
+        {
+            case null:
+                return "fas fa-folder";
+
+            case nameof(ColumnModel):
+            case nameof(IndexColumnModel):
+            case nameof(ViewColumnModel):
+                return "fas fa-columns";
+
+            case nameof(DatabaseModel):
+                return "fas fa-database";
+
+            case nameof(DataSourceInformationModel):
+                return "fas fa-plug";
+
+            case nameof(ForeignKeyModel):
+            case nameof(IndexModel):
+                return "fas fa-key";
+
+            case nameof(ProcedureModel):
+                return "fas fa-code";
+
+            case nameof(TableModel):
+            case nameof(ViewModel):
+                return "fas fa-table";
+
+            case nameof(UserModel):
+                return "fas fa-user";
+
+            default:
+                return "fas fa-question";
+        }
+    }
+
+    private async Task HandleGetSchemaTables(bool isRawRequested)
     {
         isBusy = true;
         tables = null;
-        exception = null;
+        error = null;
         elapsed = null;
 
         var stopwatch = new Stopwatch();
@@ -63,20 +113,46 @@
                 .Where(item => !string.IsNullOrWhiteSpace(item))
                 .ToArray();
 
-            tables = await _schemaApi.GetSchemaTablesAsync(
-                connectionName,
-                collectionName,
-                restrictions);
+            if (isRawRequested)
+            {
+                tables = await _schemaApi.GetSchemaTablesAsync(
+                    connectionName,
+                    collectionName,
+                    restrictions);
+            }
+            else
+            {
+                var schema = await _schemaApi.GetSchemaAsync(connectionName);
+                tables = schema.SourceDataTables;
+            }
+
+            tables = tables.OrderBy(item => item.TableName).ToArray();
         }
         catch (Exception thrown)
         {
-            exception = thrown;
+            error = thrown;
         }
         finally
         {
             stopwatch.Stop();
             elapsed = stopwatch.Elapsed;
             isBusy = false;
+        }
+    }
+
+    private async Task HandleLoadHierarchy()
+    {
+        try
+        {
+            ////var schema = await _schemaApi.MapTables(connectionName, tables);
+            ////var treeBuilder = new SchemaTreeBuilder();
+            ////var node = treeBuilder.BuildTree(schema);
+            var node = await _schemaApi.GetHierarchyAsync(connectionName);
+            hierarchy = new Node[] { node };
+        }
+        catch (Exception thrown)
+        {
+            error = thrown;
         }
     }
 }
