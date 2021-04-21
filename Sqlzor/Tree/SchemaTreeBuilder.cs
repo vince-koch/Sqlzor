@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 using Sqlzor.Drivers.Models;
 
@@ -15,7 +13,7 @@ namespace Sqlzor.Tree
             var allModels = new List<object>();
             allModels.AddRange(schema.Columns);
             allModels.AddRange(schema.Databases);
-            allModels.AddRange(schema.DataSourceInformation);
+            allModels.Add(schema.DataSourceInformation.First()); 
             allModels.AddRange(schema.ForeignKeys);
             allModels.AddRange(schema.IndexColumns);
             allModels.AddRange(schema.Indexes);
@@ -82,6 +80,7 @@ namespace Sqlzor.Tree
                 case nameof(DataSourceInformationModel):
                     node.Path = string.Empty;
                     AddFolderNode(node, "Databases");
+                    AddFolderNode(node, "Users");
                     break;
 
                 case nameof(ForeignKeyModel):
@@ -120,12 +119,12 @@ namespace Sqlzor.Tree
 
                 case nameof(ViewColumnModel):
                     var viewColumn = model as ViewColumnModel;
-                    node.Path = $"/Databases/{viewColumn.TableCatalog}/Tables/{viewColumn.TableSchema}.{viewColumn.TableName}/Columns/{viewColumn.ColumnName}";
+                    node.Path = $"/Databases/{viewColumn.ViewCatalog}/Views/{viewColumn.ViewSchema}.{viewColumn.ViewName}/Columns/{viewColumn.ColumnName}";
                     break;
 
                 case nameof(ViewModel):
                     var view = model as ViewModel;
-                    node.Path = $"/Databases/{view.TableCatalog}/Tables/{view.TableSchema}.{view.TableName}";
+                    node.Path = $"/Databases/{view.ViewCatalog}/Views/{view.ViewSchema}.{view.ViewName}";
                     AddFolderNode(node, "Columns");
                     break;
 

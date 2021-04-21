@@ -49,20 +49,20 @@ namespace Sqlzor.Drivers.Models
         /// false—Values of this data type may not be auto-incrementing.
         /// Note that this merely indicates whether a column of this data type may be auto-incrementing, not that all columns of this type are auto-incrementing.
         /// </summary>
-        public bool IsAutoincrementable { get; set; }
+        public bool? IsAutoincrementable { get; set; }
 
         /// <summary>
         /// true—The data type is the best match between all data types in the data store and the.NET Framework data type indicated by the value in the DataType column.
         /// false—The data type is not the best match.
         /// For each set of rows in which the value of the DataType column is the same, the IsBestMatch column is set to true in only one row.
         /// </summary>        
-        public bool IsBestMatch { get; set; }
+        public bool? IsBestMatch { get; set; }
 
         /// <summary>
         /// true—The data type is a character type and is case-sensitive.
         /// false—The data type is not a character type or is not case-sensitive.
         /// </summary>
-        public bool IsCaseSensitive { get; set; }
+        public bool? IsCaseSensitive { get; set; }
 
         /// <summary>
         /// true—Columns of this data type created by the data definition language (DDL) will be of fixed length.
@@ -75,13 +75,13 @@ namespace Sqlzor.Drivers.Models
         /// true—The data type has a fixed precision and scale.
         /// false—The data type does not have a fixed precision and scale.
         /// </summary>
-        public bool IsFixedPrecisionScale { get; set; }
+        public bool? IsFixedPrecisionScale { get; set; }
 
         /// <summary>
         /// true—The data type contains very long data; the definition of very long data is provider-specific.
         /// false—The data type does not contain very long data.
         /// </summary>
-        public bool IsLong { get; set; }
+        public bool? IsLong { get; set; }
 
         /// <summary>
         /// true—The data type is nullable.
@@ -94,13 +94,13 @@ namespace Sqlzor.Drivers.Models
         /// true—The data type can be used in a WHERE clause with any operator except the LIKE predicate.
         /// false—The data type cannot be used in a WHERE clause with any operator except the LIKE predicate.
         /// </summary>
-        public bool IsSearchable { get; set; }
+        public bool? IsSearchable { get; set; }
 
         /// <summary>
         /// true—The data type can be used with the LIKE predicate
         /// false—The data type cannot be used with the LIKE predicate.
         /// </summary>
-        public bool IsSearchableWithLike { get; set; }
+        public bool? IsSearchableWithLike { get; set; }
 
         /// <summary>
         /// true—The data type is unsigned.

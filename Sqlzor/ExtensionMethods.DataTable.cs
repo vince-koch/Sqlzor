@@ -6,13 +6,17 @@ namespace Sqlzor
 {
     public static partial class ExtensionMethods
     {
-        public static string AsString(this DataTable dataTable)
+        public static string AsString(this DataTable dataTable, int maxRows = -1)
         {
             StringBuilder output = new StringBuilder();
 
+            DataRow[] rows = maxRows > 0
+                ? dataTable.Rows.OfType<DataRow>().Take(maxRows).ToArray()
+                : dataTable.Rows.OfType<DataRow>().ToArray();
+
             // Get column widths
             int[] columnsWidths = new int[dataTable.Columns.Count];
-            foreach (DataRow row in dataTable.Rows)
+            foreach (DataRow row in rows)
             {
                 for (int i = 0; i < dataTable.Columns.Count; i++)
                 {
@@ -41,10 +45,10 @@ namespace Sqlzor
                 output.Append("|" + text.PadRight(columnsWidths[i] + 2));
             }
 
-            output.Append("|\n" + new string('=', output.Length) + "\n");
+            output.Append("|\n" + new string('=', output.Length + 1) + "\n");
 
             // Write Rows
-            foreach (DataRow row in dataTable.Rows)
+            foreach (DataRow row in rows)
             {
                 for (int i = 0; i < dataTable.Columns.Count; i++)
                 {

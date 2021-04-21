@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 
 using Sqlzor.Drivers.Abstract;
 using Sqlzor.Drivers.Models;
@@ -44,7 +42,7 @@ namespace Sqlzor.Drivers.MySql
             column.ColumnName = row.GetString("COLUMN_NAME");
             column.OrdinalPosition = row.GetInt("ORDINAL_POSITION");
             column.ColumnDefault = row.GetString("COLUMN_DEFAULT");
-            column.IsNullable = row.GetValue("IS_NULLABLE", MySqlConverter.ConvertStringToBool);
+            column.IsNullable = row.GetValue("IS_NULLABLE", CommonConverter.ConvertStringToBool);
             column.DataType = row.GetString("DATA_TYPE");
             column.CharacterMaximumLength = row.GetNullableLong("CHARACTER_MAXIMUM_LENGTH");
 
@@ -86,25 +84,25 @@ namespace Sqlzor.Drivers.MySql
         {
             var dataType = new DataTypeModel();
             dataType.TypeName = row.GetString("TypeName");
-            dataType.ProviderDbType = row.GetInt("ProviderDbType");
-            dataType.ColumnSize = row.GetLong("ColumnSize");
+            dataType.ProviderDbType = row.GetNullableInt("ProviderDbType");
+            dataType.ColumnSize = row.GetNullableLong("ColumnSize");
             dataType.CreateFormat = row.GetString("CreateFormat");
             dataType.CreateParameters = row.GetString("CreateParameters");
             dataType.DataTypeName = row.GetString("DataType");
-            dataType.IsAutoincrementable = row.GetBool("IsAutoincrementable");
-            dataType.IsBestMatch = row.GetBool("IsBestMatch");
-            dataType.IsCaseSensitive = row.GetBool("IsCaseSensitive");
+            dataType.IsAutoincrementable = row.GetNullableBool("IsAutoincrementable");
+            dataType.IsBestMatch = row.GetNullableBool("IsBestMatch");
+            dataType.IsCaseSensitive = row.GetNullableBool("IsCaseSensitive");
             dataType.IsFixedLength = row.GetNullableBool("IsFixedLength");
-            dataType.IsFixedPrecisionScale = row.GetBool("IsFixedPrecisionScale");
-            dataType.IsLong = row.GetBool("IsLong");
+            dataType.IsFixedPrecisionScale = row.GetNullableBool("IsFixedPrecisionScale");
+            dataType.IsLong = row.GetNullableBool("IsLong");
             dataType.IsNullable = row.GetNullableBool("IsNullable");
-            dataType.IsSearchable = row.GetBool("IsSearchable");
-            dataType.IsSearchableWithLike = row.GetBool("IsSearchableWithLike");
+            dataType.IsSearchable = row.GetNullableBool("IsSearchable");
+            dataType.IsSearchableWithLike = row.GetNullableBool("IsSearchableWithLike");
             dataType.IsUnsigned = row.GetNullableBool("IsUnsigned");
             dataType.MaximumScale = row.GetNullableShort("MaximumScale");
             dataType.MinimumScale = row.GetNullableShort("MinimumScale");
             dataType.IsConcurrencyType = row.GetNullableBool("IsConcurrencyType");
-            dataType.IsLiteralSupported = row.GetBool("IsLiteralSupported");
+            dataType.IsLiteralSupported = row.GetNullableBool("IsLiteralSupported");
             dataType.LiteralPrefix = row.GetString("LiteralPrefix");
             dataType.LiteralSuffix = row.GetString("LiteralSuffix");
             dataType.NativeDataType = row.GetString("NativeDataType");
@@ -115,26 +113,25 @@ namespace Sqlzor.Drivers.MySql
         protected override ForeignKeyModel MapForeignKey(DataRow row)
         {
             var foreignKey = new ForeignKeyModel();
-            foreignKey.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
-            foreignKey.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
-            foreignKey.ConstraintName = row.GetString("CONSTRAINT_NAME");
             foreignKey.TableCatalog = row.GetString("TABLE_SCHEMA");
             foreignKey.TableSchema = null;
             foreignKey.TableName = row.GetString("TABLE_NAME");
+            foreignKey.ConstraintName = row.GetString("CONSTRAINT_NAME");
+            foreignKey.ReferencedTableCatalog = row.GetString("REFERENCED_TABLE_SCHEMA");
+            foreignKey.ReferencedTableSchema = null;
+            foreignKey.ReferencedTableName = row.GetString("REFERENCED_TABLE_NAME");
+            foreignKey.ReferencedColumnName = null;
 
             return foreignKey;
         }
 
-        protected override Models.IndexModel MapIndex(DataRow row)
+        protected override IndexModel MapIndex(DataRow row)
         {
-            var index = new Models.IndexModel();
-            index.ConstraintCatalog = row.GetString("INDEX_SCHEMA");
-            index.ConstraintSchema = null;
-            index.ConstraintName = row.GetString("INDEX_NAME");
-            //index.TableCatalog = row.GetString("TABLE_CATALOG");
-            //index.TableSchema = row.GetString("TABLE_SCHEMA");
+            var index = new IndexModel();
+            index.TableCatalog = row.GetString("INDEX_SCHEMA");
+            index.TableSchema = null;
             index.TableName = row.GetString("TABLE_NAME");
-            //index.IndexName = row.GetString("INDEX_NAME");
+            index.IndexName = row.GetString("INDEX_NAME");
             index.IsPrimary = row.GetBool("PRIMARY");
             index.IsUnique = row.GetBool("UNIQUE");
 
@@ -144,13 +141,13 @@ namespace Sqlzor.Drivers.MySql
         protected override IndexColumnModel MapIndexColumn(DataRow row)
         {
             var indexColumn = new IndexColumnModel();
-            indexColumn.ConstraintCatalog = row.GetString("INDEX_SCHEMA");
-            indexColumn.TableCatalog = row.GetString("TABLE_SCHEMA");
+            indexColumn.TableCatalog = row.GetString("INDEX_SCHEMA");
+            indexColumn.TableSchema = null;
             indexColumn.TableName = row.GetString("TABLE_NAME");
+            indexColumn.IndexName = row.GetString("INDEX_NAME"); 
             indexColumn.ColumnName = row.GetString("COLUMN_NAME");
             indexColumn.OrdinalPostion = row.GetInt("ORDINAL_POSITION");
-            indexColumn.IndexName = row.GetString("INDEX_NAME");
-        
+
             return indexColumn;
         }
 
@@ -167,9 +164,6 @@ namespace Sqlzor.Drivers.MySql
         protected override ProcedureModel MapProcedure(DataRow row)
         {
             var procedure = new ProcedureModel();
-            procedure.SpecificCatalog = row.GetString("SPECIFIC_SCHEMA");
-            procedure.SpecificSchema = null;
-            procedure.SpecificName = row.GetString("SPECIFIC_NAME");
             procedure.RoutineCatalog = row.GetString("ROUTINE_SCHEMA");
             procedure.RoutineSchema = null;
             procedure.RoutineName = row.GetString("ROUTINE_NAME");
@@ -183,15 +177,15 @@ namespace Sqlzor.Drivers.MySql
         protected override ProcedureParameterModel MapProcedureParameter(DataRow row)
         {
             var parameter = new ProcedureParameterModel();
-            parameter.SpecificCatalog = row.GetString("SPECIFIC_SCHEMA");
-            parameter.SpecificSchema = null;
-            parameter.SpecificName = row.GetString("SPECIFIC_NAME");
+            parameter.RoutineCatalog = row.GetString("SPECIFIC_SCHEMA");
+            parameter.RoutineSchema = null;
+            parameter.RoutineName = row.GetString("SPECIFIC_NAME");
             parameter.OrdinalPosition = row.GetInt("ORDINAL_POSITION");
             parameter.ParameterMode = row.GetString("PARAMETER_MODE");
             parameter.IsResult = row.GetBool("IS_RESULT");
             parameter.ParameterName = row.GetString("PARAMETER_NAME");
             parameter.DataType = row.GetString("DATA_TYPE");
-            parameter.CharacterMaximumLength = row.GetString("CHARACTER_MAXIMUM_LENGTH");
+            parameter.CharacterMaximumLength = row.GetNullableLong("CHARACTER_MAXIMUM_LENGTH");
 
             return parameter;
         }
@@ -228,10 +222,10 @@ namespace Sqlzor.Drivers.MySql
         protected override UserModel MapUser(DataRow row)
         {
             var user = new UserModel();
-            user.Id = row.GetString("UID");
-            user.UserName = row.GetString("USER_NAME");
-            user.CreateDate = row.GetDateTime("CREATEDATE");
-            user.UpdateDate = row.GetDateTime("UPDATEDATE");
+            user.Id = null;
+            user.UserName = row.GetString("USERNAME");
+            user.CreateDate = null;
+            user.UpdateDate = null;
 
             return user;
         }
@@ -239,9 +233,9 @@ namespace Sqlzor.Drivers.MySql
         protected override ViewModel MapView(DataRow row)
         {
             var view = new ViewModel();           
-            view.TableCatalog = row.GetString("TABLE_SCHEMA");
-            view.TableSchema = null;
-            view.TableName = row.GetString("TABLE_NAME");
+            view.ViewCatalog = row.GetString("TABLE_SCHEMA");
+            view.ViewSchema = null;
+            view.ViewName = row.GetString("TABLE_NAME");
 
             return view;
         }
@@ -252,10 +246,11 @@ namespace Sqlzor.Drivers.MySql
             viewColumn.ViewCatalog = row.GetString("VIEW_SCHEMA");
             viewColumn.ViewSchema = null;
             viewColumn.ViewName = row.GetString("VIEW_NAME");
-            viewColumn.TableCatalog = row.GetString("TABLE_SCHEMA");
-            viewColumn.TableSchema = null;
-            viewColumn.TableName = row.GetString("TABLE_NAME");
             viewColumn.ColumnName = row.GetString("COLUMN_NAME");
+            viewColumn.OrdinalPosition = row.GetInt("ORDINAL_POSITION");
+            viewColumn.IsNullable = row.GetValue("IS_NULLABLE", CommonConverter.ConvertStringToBool);
+            viewColumn.DataType = row.GetString("DATA_TYPE");
+            viewColumn.CharacterMaximumLength = row.GetNullableLong("CHARACTER_MAXIMUM_LENGTH");
 
             return viewColumn;
         }

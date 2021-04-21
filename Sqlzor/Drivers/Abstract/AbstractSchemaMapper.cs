@@ -20,17 +20,12 @@ namespace Sqlzor.Drivers.Abstract
                 return new List<TItem>();
             }
 
-            try
-            {
-                var rows = dataTable.Rows.Cast<DataRow>();
-                var list = rows.Select(item => mapRow(item)).ToList();
-                return list;
-            }
-            catch (Exception)
-            {
-                Debug.WriteLine(dataTable.AsString());
-                throw;
-            }
+            Debug.WriteLine(collectionName);
+            Debug.WriteLine(dataTable.AsString(25));
+
+            var rows = dataTable.Rows.Cast<DataRow>();
+            var list = rows.Select(item => mapRow(item)).ToList();
+            return list;
         }
 
         protected abstract ColumnModel MapColumn(DataRow row);

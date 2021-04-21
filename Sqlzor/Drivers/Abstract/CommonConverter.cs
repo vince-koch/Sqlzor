@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Sqlzor.Drivers.MySql
+namespace Sqlzor.Drivers.Abstract
 {
-    public static class MySqlConverter
+    public static class CommonConverter
     {
         public static bool ConvertStringToBool(object value)
         {
@@ -19,7 +19,7 @@ namespace Sqlzor.Drivers.MySql
                     return false;
 
                 default:
-                    throw new NotSupportedException($"{nameof(MySqlConverter)}.{nameof(ConvertStringToBool)} received unexpected value '{value}'");
+                    throw new NotSupportedException($"{nameof(CommonConverter)}.{nameof(ConvertStringToBool)} received unexpected value '{value}'");
             }
         }
     }

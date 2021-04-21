@@ -2,13 +2,13 @@
 
 namespace Sqlzor.Drivers.Models
 {
-    [DebuggerDisplay("View [{TableCatalog}.{TableSchema}.{TableName}]")]
+    [DebuggerDisplay("View [{ViewCatalog}.{ViewSchema}.{ViewName}]")]
     public class ViewModel
     {
-        public string TableCatalog { get; set; }
+        public string ViewCatalog { get; set; }
 
-        public string TableSchema { get; set; }
+        public string ViewSchema { get; set; }
 
-        public string TableName { get; set; }
+        public string ViewName { get; set; }
     }
 }

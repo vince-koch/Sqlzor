@@ -97,13 +97,7 @@
 
     private async Task HandleGetSchemaTables(bool isRawRequested)
     {
-        isBusy = true;
-        tables = null;
-        error = null;
-        elapsed = null;
-
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
+        var stopwatch = StartRequest();
 
         try
         {
@@ -134,25 +128,49 @@
         }
         finally
         {
-            stopwatch.Stop();
-            elapsed = stopwatch.Elapsed;
-            isBusy = false;
+            CompleteRequest(stopwatch);
         }
     }
 
     private async Task HandleLoadHierarchy()
     {
+        var stopwatch = StartRequest();
+
         try
         {
-            ////var schema = await _schemaApi.MapTables(connectionName, tables);
-            ////var treeBuilder = new SchemaTreeBuilder();
-            ////var node = treeBuilder.BuildTree(schema);
             var node = await _schemaApi.GetHierarchyAsync(connectionName);
+
             hierarchy = new Node[] { node };
         }
         catch (Exception thrown)
         {
             error = thrown;
         }
+        finally
+        {
+            CompleteRequest(stopwatch);
+        }
+    }
+
+    private Stopwatch StartRequest()
+    {
+        isBusy = true;
+        tables = null;
+        error = null;
+        elapsed = null;
+        hierarchy = null;
+
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        return stopwatch;
+    }
+
+    private void CompleteRequest(Stopwatch stopwatch)
+    {
+        stopwatch.Stop();
+
+        elapsed = stopwatch.Elapsed;
+        isBusy = false;
     }
 }

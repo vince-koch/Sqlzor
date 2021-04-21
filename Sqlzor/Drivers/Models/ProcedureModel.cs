@@ -6,12 +6,6 @@ namespace Sqlzor.Drivers.Models
     [DebuggerDisplay("Procedure [{RoutineCatalog}.{RoutineSchema}.{RoutineName}]")]
     public class ProcedureModel
     {
-        public string SpecificCatalog { get; set; }
-
-        public string SpecificSchema { get; set; }
-
-        public string SpecificName { get; set; }
-
         public string RoutineCatalog { get; set; }
 
         public string RoutineSchema { get; set; }

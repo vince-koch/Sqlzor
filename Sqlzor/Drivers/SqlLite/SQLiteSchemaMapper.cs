@@ -85,20 +85,20 @@ namespace Sqlzor.Drivers.SqlLite
         {
             var dataType = new DataTypeModel();
             dataType.TypeName = row.GetString("TypeName");
-            dataType.ProviderDbType = row.GetInt("ProviderDbType");
-            dataType.ColumnSize = row.GetLong("ColumnSize");
+            dataType.ProviderDbType = row.GetNullableInt("ProviderDbType");
+            dataType.ColumnSize = row.GetNullableLong("ColumnSize");
             dataType.CreateFormat = row.GetString("CreateFormat");
             dataType.CreateParameters = row.GetString("CreateParameters");
             dataType.DataTypeName = row.GetString("DataType");
-            dataType.IsAutoincrementable = row.GetBool("IsAutoincrementable");
-            dataType.IsBestMatch = row.GetBool("IsBestMatch");
-            dataType.IsCaseSensitive = row.GetBool("IsCaseSensitive");
+            dataType.IsAutoincrementable = row.GetNullableBool("IsAutoincrementable");
+            dataType.IsBestMatch = row.GetNullableBool("IsBestMatch");
+            dataType.IsCaseSensitive = row.GetNullableBool("IsCaseSensitive");
             dataType.IsFixedLength = row.GetNullableBool("IsFixedLength");
-            dataType.IsFixedPrecisionScale = row.GetBool("IsFixedPrecisionScale");
-            dataType.IsLong = row.GetBool("IsLong");
+            dataType.IsFixedPrecisionScale = row.GetNullableBool("IsFixedPrecisionScale");
+            dataType.IsLong = row.GetNullableBool("IsLong");
             dataType.IsNullable = row.GetNullableBool("IsNullable");
-            dataType.IsSearchable = row.GetBool("IsSearchable");
-            dataType.IsSearchableWithLike = row.GetBool("IsSearchableWithLike");
+            dataType.IsSearchable = row.GetNullableBool("IsSearchable");
+            dataType.IsSearchableWithLike = row.GetNullableBool("IsSearchableWithLike");
             dataType.IsUnsigned = row.GetNullableBool("IsUnsigned");
             dataType.MaximumScale = row.GetNullableShort("MaximumScale");
             dataType.MinimumScale = row.GetNullableShort("MinimumScale");
@@ -113,22 +113,21 @@ namespace Sqlzor.Drivers.SqlLite
         protected override ForeignKeyModel MapForeignKey(DataRow row)
         {
             var foreignKey = new ForeignKeyModel();
-            foreignKey.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
-            foreignKey.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
-            foreignKey.ConstraintName = row.GetString("CONSTRAINT_NAME");
             foreignKey.TableCatalog = row.GetString("TABLE_CATALOG");
             foreignKey.TableSchema = row.GetString("TABLE_SCHEMA");
             foreignKey.TableName = row.GetString("TABLE_NAME");
+            foreignKey.ConstraintName = row.GetString("CONSTRAINT_NAME");
+            foreignKey.ReferencedTableCatalog = row.GetString("FKEY_TO_CATALOG");
+            foreignKey.ReferencedTableSchema = row.GetString("FKEY_TO_SCHEMA");
+            foreignKey.ReferencedTableName = row.GetString("FKEY_TO_TABLE");
+            foreignKey.ReferencedColumnName = row.GetString("FKEY_TO_COLUMN");
 
             return foreignKey;
         }
 
-        protected override Models.IndexModel MapIndex(DataRow row)
+        protected override IndexModel MapIndex(DataRow row)
         {
-            var index = new Models.IndexModel();
-            index.ConstraintCatalog = row.GetString("INDEX_CATALOG");
-            index.ConstraintSchema = row.GetString("INDEX_SCHEMA");
-            index.ConstraintName = row.GetString("INDEX_NAME");
+            var index = new IndexModel();
             index.TableCatalog = row.GetString("TABLE_CATALOG");
             index.TableSchema = row.GetString("TABLE_SCHEMA");
             index.TableName = row.GetString("TABLE_NAME");
@@ -143,15 +142,12 @@ namespace Sqlzor.Drivers.SqlLite
         protected override IndexColumnModel MapIndexColumn(DataRow row)
         {
             var indexColumn = new IndexColumnModel();
-            indexColumn.ConstraintCatalog = row.GetString("CONSTRAINT_CATALOG");
-            indexColumn.ConstraintSchema = row.GetString("CONSTRAINT_SCHEMA");
-            indexColumn.ConstraintName = row.GetString("CONSTRAINT_NAME");
             indexColumn.TableCatalog = row.GetString("TABLE_CATALOG");
             indexColumn.TableSchema = row.GetString("TABLE_SCHEMA");
             indexColumn.TableName = row.GetString("TABLE_NAME");
+            indexColumn.IndexName = row.GetString("INDEX_NAME");
             indexColumn.ColumnName = row.GetString("COLUMN_NAME");
             indexColumn.OrdinalPostion = row.GetInt("ORDINAL_POSITION");
-            indexColumn.IndexName = row.GetString("INDEX_NAME");
 
             return indexColumn;
         }
@@ -213,9 +209,9 @@ namespace Sqlzor.Drivers.SqlLite
         protected override ViewModel MapView(DataRow row)
         {
             var view = new ViewModel();
-            view.TableCatalog = row.GetString("TABLE_CATALOG");
-            view.TableSchema = row.GetString("TABLE_SCHEMA");
-            view.TableName = row.GetString("TABLE_NAME");
+            view.ViewCatalog = row.GetString("TABLE_CATALOG");
+            view.ViewSchema = row.GetString("TABLE_SCHEMA");
+            view.ViewName = row.GetString("TABLE_NAME");
 
             return view;
         }
@@ -226,10 +222,12 @@ namespace Sqlzor.Drivers.SqlLite
             viewColumn.ViewCatalog = row.GetString("VIEW_CATALOG");
             viewColumn.ViewSchema = row.GetString("VIEW_SCHEMA");
             viewColumn.ViewName = row.GetString("VIEW_NAME");
-            viewColumn.TableCatalog = row.GetString("TABLE_CATALOG");
-            viewColumn.TableSchema = row.GetString("TABLE_SCHEMA");
-            viewColumn.TableName = row.GetString("TABLE_NAME");
             viewColumn.ColumnName = row.GetString("COLUMN_NAME");
+
+            viewColumn.OrdinalPosition = row.GetInt("ORDINAL_POSITION");
+            viewColumn.IsNullable = row.GetValue("IS_NULLABLE", CommonConverter.ConvertStringToBool);
+            viewColumn.DataType = row.GetString("DATA_TYPE");
+            viewColumn.CharacterMaximumLength = row.GetNullableLong("CHARACTER_MAXIMUM_LENGTH");
 
             return viewColumn;
         }
