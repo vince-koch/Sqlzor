@@ -19,10 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Sqlzor.DbSchema.MySql\Sqlzor.DbSchema.MySql.csproj" />
-    <ProjectReference Include="..\..\Sqlzor.DbSchema.Postgres\Sqlzor.DbSchema.Postgres.csproj" />
-    <ProjectReference Include="..\..\Sqlzor.DbSchema.SqlLite\Sqlzor.DbSchema.SqlLite.csproj" />
-    <ProjectReference Include="..\..\Sqlzor.DbSchema.SqlServer\Sqlzor.DbSchema.SqlServer.csproj" />
+    <ProjectReference Include="..\Sqlzor.DbSchema.MySql\Sqlzor.DbSchema.MySql.csproj" />
+    <ProjectReference Include="..\Sqlzor.DbSchema.Postgres\Sqlzor.DbSchema.Postgres.csproj" />
+    <ProjectReference Include="..\Sqlzor.DbSchema.SqlLite\Sqlzor.DbSchema.SqlLite.csproj" />
+    <ProjectReference Include="..\Sqlzor.DbSchema.SqlServer\Sqlzor.DbSchema.SqlServer.csproj" />
     <ProjectReference Include="..\Sqlzor.DbSchema\Sqlzor.DbSchema.csproj" />
   </ItemGroup>
 
