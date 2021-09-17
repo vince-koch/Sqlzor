@@ -180,3 +180,8 @@ app {
         display: block;
     }
 }
+
+.monaco {
+    border: 1px solid gainsboro;
+    height: 300px;
+}

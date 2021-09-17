@@ -1,23 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Drivers\Postgres\SelectForeignKeys.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Drivers\Postgres\SelectForeignKeys.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-	<PackageReference Include="MySql.Data" Version="8.0.23" />
+	<PackageReference Include="BlazorMonaco" Version="2.1.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-	<PackageReference Include="Npgsql" Version="5.0.4" />
-	<PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
-	<PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +16,14 @@
     <None Include="wwwroot\fontawesome\webfonts\fa-regular-400.woff2" />
     <None Include="wwwroot\fontawesome\webfonts\fa-solid-900.svg" />
     <None Include="wwwroot\fontawesome\webfonts\fa-solid-900.woff2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sqlzor.DbSchema.MySql\Sqlzor.DbSchema.MySql.csproj" />
+    <ProjectReference Include="..\..\Sqlzor.DbSchema.Postgres\Sqlzor.DbSchema.Postgres.csproj" />
+    <ProjectReference Include="..\..\Sqlzor.DbSchema.SqlLite\Sqlzor.DbSchema.SqlLite.csproj" />
+    <ProjectReference Include="..\..\Sqlzor.DbSchema.SqlServer\Sqlzor.DbSchema.SqlServer.csproj" />
+    <ProjectReference Include="..\Sqlzor.DbSchema\Sqlzor.DbSchema.csproj" />
   </ItemGroup>
 
 </Project>

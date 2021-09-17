@@ -1,31 +1,48 @@
 ﻿@using System.Diagnostics;
 
-@inject IJSRuntime _jsRuntime;
-
-<textarea class="form-control" id="@componentId" rows="10"
-          @bind="QueryText" @oninput="OnQueryTextInput"
-          style="font-family: Consolas,Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;" />
+<MonacoEditor @ref="_editor" Id="@componentId" 
+        ConstructionOptions="CreateEditorConstructionOptions"
+        OnDidChangeCursorPosition="EditorDidChangeCursorPosition" 
+        OnKeyDown="HandleKeyDown"
+        CssClass="monaco" />
 
 @code {
     private string componentId = "queryEditor" + Guid.NewGuid().ToString().Replace("-", string.Empty);
+    private MonacoEditor _editor;
 
-    [Parameter]
-    public string QueryText { get; set; }
+    [Parameter] public string QueryText { get; set; }
+    [Parameter] public EventCallback<string> QueryTextChanged { get; set; }
 
-    [Parameter]
-    public EventCallback<string> QueryTextChanged { get; set; }
-
-    protected override void OnAfterRender(bool isFirstRender)
+    private StandaloneEditorConstructionOptions CreateEditorConstructionOptions(MonacoEditor editor)
     {
-        if (isFirstRender)
+        MonacoEditor.SetTheme("vs-dark");
+
+        var options = new StandaloneEditorConstructionOptions
         {
-            Debug.WriteLine(string.Format("OnAfterRender => {0} [_jsRuntime={1}]", isFirstRender, _jsRuntime));
-            _jsRuntime.InvokeVoidAsync("configureTextEditor", componentId, "queryExecuteButton");
-        }
+            AutomaticLayout = true,
+            Language = "sql",
+            Value = "SELECT *\n"
+            + "    FROM Artist\n"
+        };
+
+        return options;
+    }
+
+    private async Task EditorDidChangeCursorPosition(CursorPositionChangedEvent eventArgs)
+    {
+        QueryText = await _editor.GetValue();
+        Debug.WriteLine($"Position = {eventArgs.Position.Column}, {eventArgs.Position.LineNumber}, QueryText={QueryText}");
+        await QueryTextChanged.InvokeAsync(QueryText);
+    }
+
+    private void HandleKeyDown(KeyboardEvent e)
+    {
+        Debug.WriteLine($"{e.KeyCode}");
     }
 
     private async Task OnQueryTextInput(ChangeEventArgs e)
     {
+        Debug.WriteLine($"OnQueryTextInput => {e.Value as string}");
         await QueryTextChanged.InvokeAsync(e.Value as string);
     }
 }

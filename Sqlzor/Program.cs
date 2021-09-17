@@ -1,9 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Hosting;
@@ -11,8 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using Sqlzor.Data;
-using Sqlzor.Drivers;
+using Sqlzor.Api;
+using Sqlzor.DbSchema;
 
 namespace Sqlzor
 {
@@ -46,10 +41,10 @@ namespace Sqlzor
         {
             var services = BuildServiceProvider();
 
-            var connectionStringService = services.GetService<ConnectionStringService>();
+            var connectionStringService = services.GetService<IConnectionStringService>();
             var connectionStringEntry = await connectionStringService.GetConnectionStringEntry("Postgres LOCAL Admin");
 
-            var databaseDriverManager = services.GetService<IDatabaseDriverManagerService>();
+            var databaseDriverManager = services.GetService<ISchemaManager>();
             var schema = await databaseDriverManager.GetSchema(connectionStringEntry.ProviderName, connectionStringEntry.ConnectionString);
         }
 

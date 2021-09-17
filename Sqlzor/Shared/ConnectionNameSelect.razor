@@ -1,6 +1,6 @@
-﻿@using Sqlzor.Data;
+﻿@using Sqlzor.Api;
 
-@inject QueryApi _queryApi;
+@inject IConnectionStringService _connectionStringService;
 
 @if (connectionNames != null)
 {
@@ -25,7 +25,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        connectionNames = await _queryApi.GetConnectionNames();
+        connectionNames = await _connectionStringService.GetConnectionNames();
     }
 
     private async Task OnConnectionNameChanged(ChangeEventArgs e)

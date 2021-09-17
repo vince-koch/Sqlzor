@@ -1,7 +1,46 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@using Sqlzor.Api;
 
-Welcome to your new app.
+@inject NavigationManager _navigationManager;
+@inject ISessionService _sessionService;
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<h1>New Connection</h1>
+
+<ConnectionNameSelect @bind-ConnectionName="@connectionName" />
+<div class="form-group">
+    <button type="button" class="btn btn-primary"
+            disabled="@(isBusy || string.IsNullOrWhiteSpace(connectionName))"
+            @onclick="HandleConnect">
+        <span class="fas fa-plus"></span> Connect
+    </button>
+</div>
+
+@code {
+    private string connectionName = string.Empty;
+    private bool isBusy = false;
+    private Exception error = null;
+
+    private async Task HandleConnect()
+    {
+        try
+        {
+            isBusy = true;
+            var session = await _sessionService.OpenSession(connectionName);
+            NavigateTo($"session/{session.SessionId}");
+        }
+        catch (Exception thrown)
+        {
+            error = thrown;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private void NavigateTo(string uri)
+    {
+        _navigationManager.NavigateTo(uri, true);
+    }
+}

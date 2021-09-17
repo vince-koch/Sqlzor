@@ -13,6 +13,8 @@
     <title>Sqlzor</title>
     <base href="~/" />
 
+    <link rel="stylesheet" href="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.css" />
+
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="open-iconic/font/css/open-iconic-bootstrap.min.css" />
     <link rel="stylesheet" href="fontawesome/css/all.css" />
@@ -35,8 +37,13 @@
         <a class="dismiss">🗙</a>
     </div>
 
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/loader.js"></script>
+    <script>require.config({ paths: { 'vs': '_content/BlazorMonaco/lib/monaco-editor/min/vs' } });</script>
+    <script src="_content/BlazorMonaco/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
+    <script src="_content/BlazorMonaco/jsInterop.js"></script>
+
+    <script src="disable-refresh.js"></script>
+
     <script src="_framework/blazor.server.js"></script>
-    <script src="textarea-editor/tabOverride/tabOverride.min.js"></script>
-    <script src="textarea-editor/textarea-editor.js"></script>
 </body>
 </html>

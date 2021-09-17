@@ -1,23 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using Sqlzor.Data;
-using Sqlzor.Drivers;
-using Sqlzor.Drivers.MySql;
-using Sqlzor.Drivers.Postgres;
-using Sqlzor.Drivers.Services;
-using Sqlzor.Drivers.SqlLite;
-using Sqlzor.Drivers.SqlServer;
-using Sqlzor.Tree;
+using Sqlzor.Api;
+using Sqlzor.DbSchema;
+using Sqlzor.DbSchema.MySql;
+using Sqlzor.DbSchema.Postgres;
+using Sqlzor.DbSchema.SqlLite;
+using Sqlzor.DbSchema.SqlServer;
+using Sqlzor.Services;
 
 namespace Sqlzor
 {
@@ -37,25 +30,23 @@ namespace Sqlzor
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            services.AddSingleton<AppSettingsService>();
-            services.AddSingleton<ConnectionStringService>();
+            // api
+            services.AddSingleton<IAppSettingsService, AppSettingsService>();
+            services.AddSingleton<IConnectionStringService, ConnectionStringService>(); 
+            services.AddSingleton<ISessionService, SessionService>();
 
-            services.AddSingleton<SchemaApi>();
-            services.AddSingleton<QueryApi>();
+            // api (obsolete)
+            //services.AddSingleton<Sqlzor.Api.Obsolete.QueryApi>();
+            services.AddSingleton<Sqlzor.Api.Obsolete.SchemaApi>();
 
-            services.AddSingleton<ISchemaPersistanceService, SchemaPersistanceService>();
-            services.AddSingleton<SchemaTreeBuilder>();
-
-            services.AddSingleton<ISchemaMapper, MySqlSchemaMapper>();
-            services.AddSingleton<ISchemaMapper, NpgsqlSchemaMapper>();
-            services.AddSingleton<ISchemaMapper, SQLiteSchemaMapper>();
-            services.AddSingleton<ISchemaMapper, SqlSchemaMapper>();
-
-            services.AddSingleton<IDatabaseDriver, MySqlDatabaseDriver>();
-            services.AddSingleton<IDatabaseDriver, NpgsqlDatabaseDriver>();
-            services.AddSingleton<IDatabaseDriver, SQLiteDatabaseDriver>();
-            services.AddSingleton<IDatabaseDriver, SqlDatabaseDriver>();
-            services.AddSingleton<IDatabaseDriverManagerService, DatabaseDriverManagerService>();
+            // drivers
+            services.AddSingleton<ISchemaTreeBuilder, SchemaTreeBuilder>(); 
+            services.AddSingleton<ISchemaManager>(
+                new SchemaManagerService()
+                    .RegisterDriver<MySqlDatabaseDriver>()
+                    .RegisterDriver<NpgsqlDatabaseDriver>()
+                    .RegisterDriver<SQLiteDatabaseDriver>()
+                    .RegisterDriver<SqlDatabaseDriver>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
