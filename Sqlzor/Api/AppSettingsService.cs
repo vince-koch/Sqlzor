@@ -1,12 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
 
+using System;
+
 namespace Sqlzor.Api
 {
     public class AppSettingsService : IAppSettingsService
     {
         private IConfiguration _config;
 
-        public string ConnectionStringsFile => GetValue<string>(nameof(ConnectionStringsFile));
+        public string ConnectionStringsFile => Environment.ExpandEnvironmentVariables(
+            GetValue<string>(nameof(ConnectionStringsFile)));
 
         public string InitialQueryText => GetValue<string>(nameof(InitialQueryText));
 

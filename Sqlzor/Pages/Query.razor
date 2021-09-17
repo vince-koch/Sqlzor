@@ -12,8 +12,8 @@
 <h1>Query</h1>
 
 <div class="form-group">
-    <label for="queryTextArea">Query</label>
-    <QueryEditorComponent @bind-QueryText="@queryText" />
+    <label for="queryTextArea">Query @( $"({queryCursorX}, {queryCursorY})" )</label>
+    <QueryEditorComponent @bind-QueryText="@queryText" OnCursorPositionChanged="HandleCursorPositionChanged" />
 </div>
 
 <div class="form-group">
@@ -34,6 +34,8 @@
     private SessionModel Session;
 
     private string queryText = null;
+    private int queryCursorX = 0;
+    private int queryCursorY = 0;
 
     private bool isBusy = false;
     private TimeSpan? elapsed = null;
@@ -74,5 +76,12 @@
             elapsed = stopwatch.Elapsed;
             isBusy = false;
         }
+    }
+
+    private Task HandleCursorPositionChanged(BlazorMonaco.Position position)
+    {
+        queryCursorX = position.Column;
+        queryCursorY = position.LineNumber;
+        return Task.FromResult(true);
     }
 }
