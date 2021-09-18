@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,25 +46,33 @@ namespace Sqlzor.Api
 
         public async Task<SessionModel> OpenSession(string connectionName)
         {
-            var entry = await _connectionStringService.GetConnectionStringEntry(connectionName);
-            var driver = _schemaManagerService.GetDriver(entry.ProviderName);
-            var connection = await driver.OpenConnection(entry.ConnectionString);
-
-            var session = new SessionModel
+            try
             {
-                SessionId = Guid.NewGuid(),
-                SessionName = entry.Name,
-                Driver = driver,
-                Connetion = connection,
-                Schema = null
-            };
+                var entry = await _connectionStringService.GetConnectionStringEntry(connectionName);
+                var driver = _schemaManagerService.GetDriver(entry.ProviderName);
+                var connection = await driver.OpenConnection(entry.ConnectionString);
 
-            lock (_sessions)
-            {
-                _sessions.Add(session);
+                var session = new SessionModel
+                {
+                    SessionId = Guid.NewGuid(),
+                    SessionName = entry.Name,
+                    Driver = driver,
+                    Connetion = connection,
+                    Schema = null
+                };
+
+                lock (_sessions)
+                {
+                    _sessions.Add(session);
+                }
+
+                return session;
             }
-
-            return session;
+            catch (Exception thrown)
+            {
+                Debug.WriteLine(thrown);
+                throw;
+            }
         }
 
         public SessionModel OpenSession(string providerNae, StringDictionary properties)

@@ -5,15 +5,22 @@ VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqlzor", "Sqlzor\Sqlzor.csproj", "{95F3B25B-33FD-4A04-8BBE-6EFEBCBA0954}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlzor.DbSchema", "Sqlzor.DbSchema\Sqlzor.DbSchema.csproj", "{FC2D64C6-E7C3-4FB2-9C23-3222B68265B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqlzor.DbSchema", "Sqlzor.DbSchema\Sqlzor.DbSchema.csproj", "{FC2D64C6-E7C3-4FB2-9C23-3222B68265B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlzor.DbSchema.MySql", "Sqlzor.DbSchema.MySql\Sqlzor.DbSchema.MySql.csproj", "{29540A15-AD57-45F1-987E-AEA9B7177CF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqlzor.DbSchema.MySql", "Sqlzor.DbSchema.MySql\Sqlzor.DbSchema.MySql.csproj", "{29540A15-AD57-45F1-987E-AEA9B7177CF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlzor.DbSchema.Postgres", "Sqlzor.DbSchema.Postgres\Sqlzor.DbSchema.Postgres.csproj", "{1AF586A2-2123-4625-AD0D-D946289DD55D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqlzor.DbSchema.Postgres", "Sqlzor.DbSchema.Postgres\Sqlzor.DbSchema.Postgres.csproj", "{1AF586A2-2123-4625-AD0D-D946289DD55D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlzor.DbSchema.SqlLite", "Sqlzor.DbSchema.SqlLite\Sqlzor.DbSchema.SqlLite.csproj", "{76A09A71-1AB3-40C3-95B1-9DD95454031D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqlzor.DbSchema.SqlLite", "Sqlzor.DbSchema.SqlLite\Sqlzor.DbSchema.SqlLite.csproj", "{76A09A71-1AB3-40C3-95B1-9DD95454031D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlzor.DbSchema.SqlServer", "Sqlzor.DbSchema.SqlServer\Sqlzor.DbSchema.SqlServer.csproj", "{FBC6317F-F2E7-450E-BA28-9967C4655F0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqlzor.DbSchema.SqlServer", "Sqlzor.DbSchema.SqlServer\Sqlzor.DbSchema.SqlServer.csproj", "{FBC6317F-F2E7-450E-BA28-9967C4655F0B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{454E966F-FC0E-46FD-8362-9B56EAC75292}"
+	ProjectSection(SolutionItems) = preProject
+		ExampleDatabases\ConnectionStrings.config = ExampleDatabases\ConnectionStrings.config
+		README.md = README.md
+		ExampleDatabases\setup-docker-images.cmd = ExampleDatabases\setup-docker-images.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
