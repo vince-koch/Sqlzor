@@ -13,6 +13,7 @@
 [Aa]pp[Ss]ettings.[Cc]onfig
 [Cc]onnection[Ss]trings.[Cc]onfig
 [Pp]hp[Aa]pp[Ss]ettings.ini
+!ExampleDatabases/[Cc]onnection[Ss]trings.[Cc]onfig
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
