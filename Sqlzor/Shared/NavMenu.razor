@@ -14,20 +14,21 @@
         @foreach (var session in _sessionService.GetSessions())
         {
             var href = $"session/{session.SessionId}";
-            <li class="nav-item px-3">
+
+            <li class="nav-item px-3" title="@session.SessionName">
                 <NavLink class="nav-link" href="@href">
                     <span class="fas fa-database" aria-hidden="true"></span> &nbsp; @session.SessionName
                 </NavLink>
             </li>
         }
 
-        <li class="nav-item px-3">
+        <li class="nav-item px-3" title="New Connection">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="fas fa-plus" aria-hidden="true"></span> &nbsp; New Connection
             </NavLink>
         </li>
 
-        <li class="nav-item px-3">
+        <li class="nav-item px-3" title="Schema">
             <NavLink class="nav-link" href="schema">
                 <span class="fas fa-book" aria-hidden="true"></span> &nbsp; Schema
             </NavLink>

@@ -55,7 +55,7 @@
     private DataTable[] tables = null;
     private Exception error = null;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         var sessionId = Guid.Parse(SessionId);
         Session = _sessionService.GetSession(sessionId);
