@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 
 using Sqlzor.DbSchema.Drivers;
 using Sqlzor.DbSchema.Models;
@@ -83,6 +84,8 @@ namespace Sqlzor.DbSchema.Postgres
 
         protected override DataTypeModel MapDataType(DataRow row)
         {
+            Debug.WriteLine(row.Table.AsString());
+
             var dataType = new DataTypeModel();
             dataType.TypeName = row.GetString("TypeName");
             dataType.ProviderDbType = row.GetNullableInt("ProviderDbType");

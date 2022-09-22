@@ -37,7 +37,7 @@ namespace Sqlzor.DbSchema.Postgres
                     row["NumberOfIdentifierParts"] = 0;
                     dataTable.Rows.Add(row);
 
-                    Debug.WriteLine(dataTable.AsString());
+                    ////Debug.WriteLine(dataTable.AsString());
                     break;
 
                 case "ForeignKeys":
