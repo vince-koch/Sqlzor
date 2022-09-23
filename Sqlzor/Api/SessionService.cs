@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
+using MySqlX.XDevAPI.Relational;
 
 using Sqlzor.Api.Models;
 using Sqlzor.DbSchema;
@@ -99,6 +102,7 @@ namespace Sqlzor.Api
 
             var session = GetSession(sessionId);
 
+            var factory = DbProviderFactories.GetFactory(session.Connetion);
             using (var command = session.Connetion.CreateCommand())
             {
                 command.CommandType = CommandType.Text;

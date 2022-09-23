@@ -52,33 +52,20 @@
 </div>
 
 @code {
-    private IEnumerable<TNode> GetRootNodes()
-    {
-        if (Nodes != null && Nodes.Any())
-        {
-            return Nodes;
-        }
-
-        if (Node != null)
-        {
-            return new TNode[] { Node };
-        }
-
-        //return new TNode[0];
-        return Enumerable.Empty<TNode>();
-    }
-
     [Parameter] public TNode Node { get; set; }
+
     [Parameter] public IEnumerable<TNode> Nodes { get; set; }
 
     [Parameter] public RenderFragment<TNode> TitleTemplate { get; set; }
 
     [Parameter] public TNode SelectedNode { get; set; }
+
     [Parameter] public EventCallback<TNode> SelectedNodeChanged { get; set; }
 
     [Parameter] public Func<TNode, IEnumerable<TNode>> ChildSelector { get; set; } = node => null;
 
     [Parameter] public IList<TNode> ExpandedNodes { get; set; } = new List<TNode>();
+    
     [Parameter] public EventCallback<IList<TNode>> ExpandedNodesChanged { get; set; }
 
     [Parameter] public TreeStyle Style { get; set; } = TreeStyle.Bootstrap;
@@ -139,5 +126,20 @@
 
         SelectedNode = node;
         SelectedNodeChanged.InvokeAsync(node);
+    }
+
+    private IEnumerable<TNode> GetRootNodes()
+    {
+        if (Nodes != null && Nodes.Any())
+        {
+            return Nodes;
+        }
+
+        if (Node != null)
+        {
+            return new TNode[] { Node };
+        }
+
+        return Enumerable.Empty<TNode>();
     }
 }

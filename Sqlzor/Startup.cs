@@ -1,3 +1,5 @@
+using BlazorSliders;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,7 @@ namespace Sqlzor
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddScoped<SliderInterop>();
 
             // api
             services.AddSingleton<IAppSettingsService, AppSettingsService>();

@@ -9,33 +9,36 @@
 
 @inject SchemaApi _schemaApi;
 
-<h1>Schema</h1>
-
-<div class="form-group">
-    <label>Connection Name</label>
-    <ConnectionNameSelect @bind-ConnectionName="@connectionName" />
+<div class="top-row px-4">
+    <h3>Schema</h3>
 </div>
+<div class="content px-4">
+    <div class="form-group">
+        <label>Connection Name</label>
+        <ConnectionNameSelect @bind-ConnectionName="@connectionName" />
+    </div>
 
-<div class="form-group">
-    <label>Collection Name</label>
-    <input class="form-control" type="text" @bind="collectionName">
-</div>
+    <div class="form-group">
+        <label>Collection Name</label>
+        <input class="form-control" type="text" @bind="collectionName">
+    </div>
 
-<div class="form-group">
-    <label>Restriction Values</label>
-    <textarea class="form-control" id="queryTextArea" rows="3" @bind="restrictionValues" @bind:event="oninput" />
-</div>
+    <div class="form-group">
+        <label>Restriction Values</label>
+        <textarea class="form-control" id="queryTextArea" rows="3" @bind="restrictionValues" @bind:event="oninput" />
+    </div>
 
-<div class="form-group">
-    <button type="button" class="btn btn-primary" @onclick="e => HandleGetSchemaTables(true)"
-            disabled="@string.IsNullOrWhiteSpace(connectionName)">
-        <span class="fas fa-play"></span> Get Schema Tables
-    </button>
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" @onclick="e => HandleGetSchemaTables(true)"
+                disabled="@string.IsNullOrWhiteSpace(connectionName)">
+            <span class="fas fa-play"></span> Get Schema Tables
+        </button>
 
-    <button type="button" class="btn btn-primary" @onclick="HandleLoadHierarchy"
-            disabled="@string.IsNullOrWhiteSpace(connectionName)">
-        <span class="fas fa-play"></span> Load Hierarchy
-    </button>
+        <button type="button" class="btn btn-primary" @onclick="HandleLoadHierarchy"
+                disabled="@string.IsNullOrWhiteSpace(connectionName)">
+            <span class="fas fa-play"></span> Load Hierarchy
+        </button>
+    </div>
 </div>
 
 <BusyComponent IsBusy="@isBusy" />

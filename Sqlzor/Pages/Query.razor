@@ -34,29 +34,43 @@
     </div>
 
     <div class="content px-4">
-        <div class="row">
-            <div class="col">
-                <div class="form-group">
-                    <Tree Node="@_state.Session.Schema"
-                            HasChildNodes="item => item.Children.Any()"
-                            ChildSelector="item => item.Children">
-                        <TitleTemplate><i class="@GetIconClass(context)"></i> @context.Name?.Trim('.')</TitleTemplate>
-                    </Tree>
-                </div>
-            </div>
-            <div class="col-9">
-                <div class="form-group">
-                    <MonacoEditor @ref="_editor" Id="monacoEditor" 
-                            ConstructionOptions="CreateEditorConstructionOptions"
-                            OnDidChangeCursorPosition="HandleDidChangeCursorPosition" 
-                            OnKeyDown="HandleKeyDown"
-                            CssClass="monaco" />
-                </div>
-            </div>
-        </div>
+        <AbsolutePanel AutoResize="true" Left="250" Top="56">
+            <VerticalSliderPanel LeftPanelStartingWidth="250" MinimumLeftPanelWidth="0">
+                <LeftChildContent>
+
+                    <div style="font-size: x-small">
+                        <Tree Node="@_state.Session.Schema"
+                                HasChildNodes="item => item.Children.Any()"
+                                ChildSelector="item => item.Children">
+                            <TitleTemplate><nobr><i class="@GetIconClass(context)"></i> @context.Name?.Trim('.')</nobr></TitleTemplate>
+                        </Tree>
+                    </div>
+
+                </LeftChildContent>
+                <RightChildContent>
+
+                    <HorizontalSliderPanel PanelPosition="PanelPosition.Right" TopPanelHeight="400">
+                        <TopChildContent>
+
+                            <MonacoEditor @ref="_editor" Id="monacoEditor"
+                                            ConstructionOptions="CreateEditorConstructionOptions"
+                                            OnDidChangeCursorPosition="HandleDidChangeCursorPosition"
+                                            OnKeyDown="HandleKeyDown"
+                                            CssClass="monaco" />
+
+                        </TopChildContent>
+                        <BottomChildContent>
+                            
+                            <QueryResultsComponent Error="@_state.Error" Tables="@_state.Tables" Elapsed="@_state.Elapsed" />
+
+                        </BottomChildContent>
+                    </HorizontalSliderPanel>
+                </RightChildContent>
+            </VerticalSliderPanel>
+        </AbsolutePanel>
 
         <BusyComponent IsBusy="@_state.IsBusy" />
-        <QueryResultsComponent Error="@_state.Error" Tables="@_state.Tables" Elapsed="@_state.Elapsed" />
+        
     </div>
 
 </CascadingValue>
@@ -121,9 +135,18 @@
 
         try
         {
+            var value = _state.QueryText;
+
+            var range = await _editor.GetSelection();
+            if (range.StartColumn != range.EndColumn || range.StartLineNumber != range.EndLineNumber)
+            {
+                var textModel = await _editor.GetModel();
+                value = await textModel.GetValueInRange(range, EndOfLinePreference.TextDefined);
+            }
+
             _state.Tables = await _sessionService.ExecuteQuery(
                 _state.SessionId,
-                _state.QueryText);
+                value);
         }
         catch (Exception thrown)
         {
