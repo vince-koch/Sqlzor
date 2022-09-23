@@ -9,6 +9,7 @@
 
 @inject ISessionService _sessionService;
 @inject IAppSettingsService _appSettings;
+@inject ProtectedSessionStorage _protectedSessionStore
 
 <div class="row">
     <div class="col">
@@ -23,7 +24,11 @@
     <div class="col-9">
         <div class="form-group">
             <label for="queryTextArea">Query @( $"({queryCursorX}, {queryCursorY})" )</label>
-            <QueryEditorComponent @bind-QueryText="@queryText" OnCursorPositionChanged="HandleCursorPositionChanged" />
+            <MonacoEditor @ref="_editor" Id="@SessionId" 
+                    ConstructionOptions="CreateEditorConstructionOptions"
+                    OnDidChangeCursorPosition="HandleDidChangeCursorPosition" 
+                    OnKeyDown="HandleKeyDown"
+                    CssClass="monaco" />
         </div>
     </div>
 </div>
@@ -46,6 +51,7 @@
     private SessionModel Session;
     private Node[] Schema;
 
+    private MonacoEditor _editor;
     private string queryText = null;
     private int queryCursorX = 0;
     private int queryCursorY = 0;
@@ -66,6 +72,19 @@
         }
 
         Schema = new Node[] { Session.Schema };
+    }
+
+    private StandaloneEditorConstructionOptions CreateEditorConstructionOptions(MonacoEditor editor)
+    {
+        MonacoEditor.SetTheme("vs-dark");
+
+        var options = new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Language = "sql",
+        };
+
+        return options;
     }
 
     private async Task HandleExecuteQuery()
@@ -97,11 +116,19 @@
         }
     }
 
-    private Task HandleCursorPositionChanged(BlazorMonaco.Position position)
+    private async Task HandleDidChangeCursorPosition(CursorPositionChangedEvent eventArgs)
     {
-        queryCursorX = position.Column;
-        queryCursorY = position.LineNumber;
-        return Task.FromResult(true);
+        queryCursorX = eventArgs.Position.Column;
+        queryCursorY = eventArgs.Position.LineNumber;
+        queryText = await _editor.GetValue();
+    }
+
+    private async Task HandleKeyDown(KeyboardEvent e)
+    {
+        if (e.KeyCode == KeyCode.F5)
+        {
+            await HandleExecuteQuery();
+        }
     }
 
     private string GetIconClass(Node node)
