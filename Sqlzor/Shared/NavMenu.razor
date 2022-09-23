@@ -17,7 +17,7 @@
 
             <li class="nav-item px-3" title="@session.SessionName">
                 <NavLink class="nav-link" href="@href">
-                    <span class="fas fa-database" aria-hidden="true"></span> &nbsp; @session.SessionName
+                    <span class="fas fa-database" aria-hidden="true"></span> &nbsp; @CalculateShortSessionName(session.SessionName)
                 </NavLink>
             </li>
         }
@@ -40,6 +40,25 @@
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private RenderFragment CalculateShortSessionName(string sessionName)
+    {
+        const int MaxSessionNameLength = 18;
+
+        if (sessionName.Length > MaxSessionNameLength)
+        {
+            var shortName = sessionName.Substring(sessionName.Length - MaxSessionNameLength);
+            var firstSpaceIndex = shortName.IndexOf(' ');
+            if (firstSpaceIndex > -1)
+            {
+                shortName = shortName.Substring(firstSpaceIndex + 1);
+            }
+
+            return @<span>&hellip;@shortName</span>;
+        }
+
+        return @<span>@sessionName</span>;
+    }
 
     private void ToggleNavMenu()
     {
