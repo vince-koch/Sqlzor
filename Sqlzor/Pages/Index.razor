@@ -5,15 +5,20 @@
 @inject NavigationManager _navigationManager;
 @inject ISessionService _sessionService;
 
-<h1>New Connection</h1>
-
-<ConnectionNameSelect @bind-ConnectionName="@connectionName" />
-<div class="form-group">
-    <button type="button" class="btn btn-primary"
-            disabled="@(isBusy || string.IsNullOrWhiteSpace(connectionName))"
-            @onclick="HandleConnect">
-        <span class="fas fa-plus"></span> Connect
-    </button>
+<div class="top-row px-4">
+    <h3>New Connection</h3>
+</div>
+<div class="content px-4">
+    <div class="form-group">
+        <ConnectionNameSelect @bind-ConnectionName="@connectionName" />
+    </div>
+    <div class="form-group">
+        <button type="button" class="btn btn-primary"
+                disabled="@(isBusy || string.IsNullOrWhiteSpace(connectionName))"
+                @onclick="HandleConnect">
+            <span class="fas fa-plus"></span> Connect
+        </button>
+    </div>
 </div>
 
 @code {

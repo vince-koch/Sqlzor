@@ -2,13 +2,13 @@
 
 @inject IConnectionStringService _connectionStringService;
 
-<OverlayComponent>
+<div>
     <div class="form-check">
         <input class="form-check-input" type="radio" name="connectionTypeRadio"
                 checked="@(connectionType == "connectionName")"
                 @onchange="@(e => connectionType = "connectionName")"/>
         <div>
-            <label class="form-check-label" for="flexRadioDefault1"><h4>Named Connection</h4></label>
+            <h4><label class="form-check-label" for="flexRadioDefault1">Named Connection</label></h4>
 
             <select class="form-control" value="@ConnectionName" disabled="@(connectionType != "connectionName")" @onchange="OnConnectionNameChanged">
                 <option disabled selected value=""> -- Select a Connection -- </option>
@@ -23,13 +23,12 @@
         </div>
     </div>
 
-
     <div class="form-check">
         <input class="form-check-input" type="radio" name="connectionTypeRadio"
                 checked="@(connectionType == "connectionString")"
                 @onchange="@(e => connectionType = "connectionString")" />
         <div>
-            <label class="form-check-label" for="flexRadioDefault1"><h4>Connection String</h4></label>
+            <h4><label class="form-check-label" for="flexRadioDefault1">Connection String</label></h4>
 
             <select class="form-control" value="@DriverName" disabled="@(connectionType != "connectionString")" @onchange="OnDriverNameChanged">
                 <option disabled selected value=""> -- Select a Driver -- </option>
@@ -46,11 +45,8 @@
                 <input id="connectionStringText" type="text" class="form-control" disabled="@(connectionType != "connectionString")" placeholder="--- Enter Connection String Here ---">
             </div>
         </div>
-        
     </div>
-
-    <button type="button" class="btn btn-primary" @onclick="@HandleClick">Connect</button>
-</OverlayComponent>
+</div>
 
 @code
 {

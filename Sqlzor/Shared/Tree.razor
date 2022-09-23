@@ -1,20 +1,24 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
 
+@using Sqlzor.Api.Models;
+
 @typeparam TNode
 
 <div class="uic-tree @(Visible ? "" : "uic-tree--hidden")">
 
-    @foreach (var node in Nodes ?? Enumerable.Empty<TNode>())
+    @{ var rootNodes = GetRootNodes(); }
+
+    @foreach (var node in rootNodes)
     {
         var nodeExpanded = ExpandedNodes.Contains(node);
         var nodeSelected = node.Equals(SelectedNode);
         var nodeDisabled = NodeDisabled(node);
         var nodeLoading = loadingNodes.Contains(node);
-        var hasChilds = HasChildNodes(node);
+        var hasChildren = HasChildNodes(node);
 
         <div>
 
-            @if (hasChilds)
+            @if (hasChildren)
             {
                 <span class="uic-tree__icon" @onclick="@(() => OnToggleNode(node, !nodeExpanded))">
                     <i class="@(nodeLoading ? Style.NodeLoadingClass : nodeExpanded ? Style.CollapseNodeIconClass : Style.ExpandNodeIconClass)"></i>
@@ -27,7 +31,7 @@
                 </span>
             </div>
 
-            @if (hasChilds && nodeExpanded)
+            @if (hasChildren && nodeExpanded)
             {
                 <Tree @key="node"
                       Nodes="ChildSelector(node)"
@@ -48,7 +52,23 @@
 </div>
 
 @code {
+    private IEnumerable<TNode> GetRootNodes()
+    {
+        if (Nodes != null && Nodes.Any())
+        {
+            return Nodes;
+        }
 
+        if (Node != null)
+        {
+            return new TNode[] { Node };
+        }
+
+        //return new TNode[0];
+        return Enumerable.Empty<TNode>();
+    }
+
+    [Parameter] public TNode Node { get; set; }
     [Parameter] public IEnumerable<TNode> Nodes { get; set; }
 
     [Parameter] public RenderFragment<TNode> TitleTemplate { get; set; }

@@ -11,67 +11,88 @@
 @inject IAppSettingsService _appSettings;
 @inject ProtectedSessionStorage _protectedSessionStore
 
-<div class="row">
-    <div class="col">
-        <div class="form-group">
-            <Tree Nodes="Schema"
-                    HasChildNodes="item => item.Children.Any()"
-                    ChildSelector="item => item.Children">
-                <TitleTemplate><i class="@GetIconClass(context)"></i> @context.Name?.Trim('.')</TitleTemplate>
-            </Tree>
+<CascadingValue Name="ClientState" Value="@_state">
+    <div class="top-row">
+        <!-- left -->
+        <div class="col justify-content-start">
+            <h3><nobr>@_state.Session.SessionName</nobr></h3>
+        </div>
+
+        <!-- center -->
+        <div class="col text-center">
+            <button type="button" class="btn btn-primary" title="Execute Query (F5)"
+                    disabled="@(_state.IsBusy || string.IsNullOrWhiteSpace(_state.QueryText))"
+                    @onclick="HandleExecuteQuery">
+                <span class="fas fa-play"></span> Execute
+            </button>
+        </div>
+
+        <!-- right -->
+        <div class="col text-right">
+            <div title="Cursor Position">@( $"Ln: {_state.CursorY}   Col: {_state.CursorX}" )</div>
         </div>
     </div>
-    <div class="col-9">
-        <div class="form-group">
-            <label for="queryTextArea">Query @( $"({queryCursorX}, {queryCursorY})" )</label>
-            <MonacoEditor @ref="_editor" Id="@SessionId" 
-                    ConstructionOptions="CreateEditorConstructionOptions"
-                    OnDidChangeCursorPosition="HandleDidChangeCursorPosition" 
-                    OnKeyDown="HandleKeyDown"
-                    CssClass="monaco" />
+
+    <div class="content px-4">
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <Tree Node="@_state.Session.Schema"
+                            HasChildNodes="item => item.Children.Any()"
+                            ChildSelector="item => item.Children">
+                        <TitleTemplate><i class="@GetIconClass(context)"></i> @context.Name?.Trim('.')</TitleTemplate>
+                    </Tree>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="form-group">
+                    <MonacoEditor @ref="_editor" Id="monacoEditor" 
+                            ConstructionOptions="CreateEditorConstructionOptions"
+                            OnDidChangeCursorPosition="HandleDidChangeCursorPosition" 
+                            OnKeyDown="HandleKeyDown"
+                            CssClass="monaco" />
+                </div>
+            </div>
         </div>
+
+        <BusyComponent IsBusy="@_state.IsBusy" />
+        <QueryResultsComponent Error="@_state.Error" Tables="@_state.Tables" Elapsed="@_state.Elapsed" />
     </div>
-</div>
 
-<div class="form-group">
-    <button type="button" id="queryExecuteButton" class="btn btn-primary"
-            disabled="@(isBusy || string.IsNullOrWhiteSpace(queryText))"
-            @onclick="HandleExecuteQuery">
-        <span class="fas fa-play"></span> Execute
-    </button>
-</div>
-
-<BusyComponent IsBusy="@isBusy" />
-<QueryResultsComponent Error="@error" Tables="@tables" Elapsed="@elapsed" />
+</CascadingValue>
 
 @code {
+    private static Dictionary<Guid, ClientStateModel> _allClientState = new Dictionary<Guid, ClientStateModel>();
+
     [Parameter]
     public string SessionId { get; set; }
 
-    private SessionModel Session;
-    private Node[] Schema;
+    private ClientStateModel _state;
 
     private MonacoEditor _editor;
-    private string queryText = null;
-    private int queryCursorX = 0;
-    private int queryCursorY = 0;
-
-    private bool isBusy = false;
-    private TimeSpan? elapsed = null;
-    private DataTable[] tables = null;
-    private Exception error = null;
 
     protected override async Task OnParametersSetAsync()
     {
         var sessionId = Guid.Parse(SessionId);
-        Session = _sessionService.GetSession(sessionId);
 
-        if (Session.Schema == null)
+        if (!_allClientState.TryGetValue(sessionId, out var clientState))
         {
-            Session = await _sessionService.RefreshHierarchy(sessionId);
+            var sessionModel = _sessionService.GetSession(sessionId);
+            clientState = new ClientStateModel(sessionModel);
+            _allClientState.Add(sessionId, clientState);
         }
 
-        Schema = new Node[] { Session.Schema };
+        if (clientState.Session.Schema == null)
+        {
+            clientState.Session = await _sessionService.RefreshHierarchy(sessionId);
+        }
+
+        _state = clientState;
+
+        if (_editor != null)
+        {
+            await _editor.SetValue(_state.QueryText);
+        }
     }
 
     private StandaloneEditorConstructionOptions CreateEditorConstructionOptions(MonacoEditor editor)
@@ -82,6 +103,7 @@
         {
             AutomaticLayout = true,
             Language = "sql",
+            Value = _state.QueryText
         };
 
         return options;
@@ -92,35 +114,35 @@
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        isBusy = true;
-        elapsed = null;
-        tables = null;
-        error = null;
+        _state.IsBusy = true;
+        _state.Elapsed = null;
+        _state.Tables = null;
+        _state.Error = null;
 
         try
         {
-            tables = await _sessionService.ExecuteQuery(
-                Session.SessionId,
-                queryText);
+            _state.Tables = await _sessionService.ExecuteQuery(
+                _state.SessionId,
+                _state.QueryText);
         }
         catch (Exception thrown)
         {
-            error = thrown;
+            _state.Error = thrown;
         }
         finally
         {
             stopwatch.Stop();
 
-            elapsed = stopwatch.Elapsed;
-            isBusy = false;
+            _state.Elapsed = stopwatch.Elapsed;
+            _state.IsBusy = false;
         }
     }
 
     private async Task HandleDidChangeCursorPosition(CursorPositionChangedEvent eventArgs)
     {
-        queryCursorX = eventArgs.Position.Column;
-        queryCursorY = eventArgs.Position.LineNumber;
-        queryText = await _editor.GetValue();
+        _state.CursorX = eventArgs.Position.Column;
+        _state.CursorY = eventArgs.Position.LineNumber;
+        _state.QueryText = await _editor.GetValue();
     }
 
     private async Task HandleKeyDown(KeyboardEvent e)
