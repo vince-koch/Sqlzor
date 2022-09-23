@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using Sqlzor.DbSchema.Models;
@@ -148,7 +149,8 @@ namespace Sqlzor.DbSchema
         private void DebugNode(Node node, int depth)
         {
             var indent = new string(' ', depth * 4);
-            System.Diagnostics.Debug.WriteLine($"{indent}{node.Name}    [{DebugType(node)}: {node.Path}]");
+            Debug.WriteLine($"{indent}{node.Name}    [{DebugType(node)}: {node.Path}]");
+
             foreach (var child in node.Children)
             {
                 DebugNode(child, depth + 1);

@@ -20,8 +20,8 @@ namespace Sqlzor.DbSchema.Drivers
                 return new List<TItem>();
             }
 
-            Debug.WriteLine(collectionName);
-            Debug.WriteLine(dataTable.AsString(25));
+            ////Debug.WriteLine(collectionName);
+            ////Debug.WriteLine(dataTable.AsString(25));
 
             var rows = dataTable.Rows.Cast<DataRow>();
             var list = rows.Select(item => mapRow(item)).ToList();
