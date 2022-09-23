@@ -8,8 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-using MySqlX.XDevAPI.Relational;
-
 using Sqlzor.Api.Models;
 using Sqlzor.DbSchema;
 
