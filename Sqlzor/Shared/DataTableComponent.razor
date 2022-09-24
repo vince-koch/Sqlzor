@@ -2,42 +2,43 @@
 
 @if (Table != null)
 {
-    if (IsCollapsible)
-    {
-        <h5 class="alert alert-dark">
-            <a href="#" class="text-dark" @onclick="HandleToggleCollapse" @onclick:preventDefault>
-                <span class=@(isCollapsed ? "fas fa-chevron-right" : "fas fa-chevron-down") aria-hidden="true"></span> @(Table.TableName ?? "(Unnamed Table)")
+    <div class="row border bg-dark text-light mt-2 mb-2">
+        <div class="col">
+            <a href="#" class="text-light" @onclick="HandleToggleCollapse" style="font-size: x-large;" @onclick:preventDefault>
+                <span class=@(isCollapsed ? "fas fa-chevron-right" : "fas fa-chevron-down") aria-hidden="true"></span>
+                @(Table.TableName ?? "(Unnamed Table)")
             </a>
-        </h5>
-    }
-    else
-    {
-        <h5 class="alert alert-dark">@(Table.TableName ?? "(Unnamed Table)")</h5>
-    }
+        </div>
+        <div class="col text-right pt-2">
+            @Table.Rows.Count rows
+        </div>
+    </div>
 
     @if (!isCollapsed)
     {
-        <table class="table table-sm table-light table-striped" style="font-size: x-small">
-            <thead>
-                <tr>
-                    @foreach (var column in Table.Columns.Cast<DataColumn>())
-                    {
-                        <th>@column.ColumnName</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var row in Table.Rows.Cast<DataRow>())
-                {
-                    <tr>
-                        @foreach (var item in row.ItemArray)
+        <div class="table-scroll-container">
+            <table class="table table-sm table-light table-striped" style="font-size: x-small">
+                <thead>
+                    <tr class="table-primary">
+                        @foreach (var column in Table.Columns.Cast<DataColumn>())
                         {
-                            <td>@item</td>
+                            <th>@column.ColumnName</th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var row in Table.Rows.Cast<DataRow>())
+                    {
+                        <tr>
+                            @foreach (var item in row.ItemArray)
+                            {
+                                <td>@item</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
 
@@ -70,6 +71,9 @@
 
     private void HandleToggleCollapse()
     {
-        isCollapsed = !isCollapsed;
+        if (IsCollapsible)
+        {
+            isCollapsed = !isCollapsed;
+        }
     }
 }

@@ -12,7 +12,7 @@
     {
         <p class="text-muted">Query completed in <span class="fw-bold">@Elapsed.ToHumanTimeString()</span> and returned <span class="fw-bold">@Tables.Length</span> table(s) containing <span class="fw-bold">@Tables.Sum(table => table.Rows.Count)</span> row(s).</p>
 
-        <div class="accordion accordion-flush" id="queryResultsAccordion">
+        <div>
             @foreach (var table in Tables)
             {
                 <DataTableComponent Table="@table" IsCollapsible="@(Tables.Length > 1)" IsInitiallyCollapsed="@(Tables.Length > 1)" />

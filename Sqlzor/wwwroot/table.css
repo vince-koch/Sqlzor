@@ -1,0 +1,14 @@
+﻿div.table-scroll-container {
+    max-height: 300px;
+    overflow: auto;
+}
+
+    div.table-scroll-container table {
+        text-align: left;
+        position: relative;
+    }
+
+    div.table-scroll-container th {
+        position: sticky;
+        top: 0;
+    }
