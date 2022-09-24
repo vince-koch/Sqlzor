@@ -20,6 +20,8 @@ namespace Sqlzor.Api
 
         Task<DataTable[]> ExecuteQuery(Guid sessionId, string queryText);
 
+        Task<DataTable[]> GetSchemaTablesAsync(Guid sessionId, string collectionName, string[] restrictions);
+
         Task<SessionModel> RefreshHierarchy(Guid sessionId);
     }
 }

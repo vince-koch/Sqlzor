@@ -15,7 +15,16 @@
     <div class="top-row">
         <!-- left -->
         <div class="col text-left">
-            <h3><nobr>@_state.Session.SessionName</nobr></h3>
+            <div class="h3">
+                <nobr>
+                    <span class="fas fa-database text-info" title="Get Schema Tables"
+                        style="@( _state.IsBusy ? "cursor: default;" : "cursor: pointer;" )"
+                        disabled="@_state.IsBusy"
+                        @onclick="HandleGetSchemaTables">
+                    </span>
+                    @_state.Session.SessionName
+                </nobr>
+            </div>
         </div>
 
         <!-- center -->
@@ -147,6 +156,36 @@
             _state.Tables = await _sessionService.ExecuteQuery(
                 _state.SessionId,
                 value);
+        }
+        catch (Exception thrown)
+        {
+            _state.Error = thrown;
+        }
+        finally
+        {
+            stopwatch.Stop();
+
+            _state.Elapsed = stopwatch.Elapsed;
+            _state.IsBusy = false;
+        }
+    }
+
+    private async Task HandleGetSchemaTables()
+    {
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        _state.IsBusy = true;
+        _state.Elapsed = null;
+        _state.Tables = null;
+        _state.Error = null;
+
+        try
+        {
+            _state.Tables = await _sessionService.GetSchemaTablesAsync(
+                _state.SessionId,
+                collectionName: null,
+                restrictions: null);
         }
         catch (Exception thrown)
         {

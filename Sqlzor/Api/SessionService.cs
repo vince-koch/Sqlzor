@@ -135,6 +135,32 @@ namespace Sqlzor.Api
             }
         }
 
+        public async Task<DataTable[]> GetSchemaTablesAsync(Guid sessionId, string collectionName, string[] restrictions)
+        {
+            var session = GetSession(sessionId);
+            
+
+            if (string.IsNullOrWhiteSpace(collectionName))
+            {
+                var dataTables = await session.Driver.SchemaFetchService.GetAllSchemaCollections(
+                    session.Connetion.ConnectionString, 
+                    maxConnections: 2);
+
+                return dataTables;
+            }
+            else
+            {
+                var dataTable = await session.Driver.SchemaFetchService.GetSchemaCollection(
+                    session.Connetion.ConnectionString,
+                    collectionName,
+                    restrictions);
+
+                var dataTables = new DataTable[] { dataTable };
+                
+                return dataTables;
+            }
+        }
+
         public async Task<SessionModel> RefreshHierarchy(Guid sessionId)
         {
             var session = GetSession(sessionId);
