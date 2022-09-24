@@ -38,7 +38,7 @@ namespace Sqlzor.DbSchema
 
         public IDatabaseDriver GetDriver(string providerName)
         {
-            var driver = _databaseDrivers.Single(item => item.ProviderName == providerName);
+            var driver = _databaseDrivers.Single(item => item.ProviderInvariantName == providerName);
             return driver;
         }
 
@@ -52,7 +52,7 @@ namespace Sqlzor.DbSchema
         public string[] GetProviderNames()
         {
             var providerNames = _databaseDrivers
-                .Select(driver => driver.ProviderName)
+                .Select(driver => driver.ProviderInvariantName)
                 .Distinct()
                 .ToArray();
 
@@ -82,7 +82,7 @@ namespace Sqlzor.DbSchema
                 .SchemaMapper
                 .MapSchema(dataTables);
 
-            schema.ProviderName = databaseDriver.ProviderName;
+            schema.ProviderName = databaseDriver.ProviderInvariantName;
             
             return schema;
         }

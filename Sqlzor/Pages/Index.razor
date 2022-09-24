@@ -9,43 +9,12 @@
     <h3>New Connection</h3>
 </div>
 <div class="content px-4">
-    <div class="form-group">
-        <ConnectionNameSelect @bind-ConnectionName="@connectionName" />
-    </div>
-    <div class="form-group">
-        <button type="button" class="btn btn-primary"
-                disabled="@(isBusy || string.IsNullOrWhiteSpace(connectionName))"
-                @onclick="HandleConnect">
-            <span class="fas fa-plus"></span> Connect
-        </button>
-    </div>
+    <ConnectionProperties OnConnected="HandleConnected" />
 </div>
 
 @code {
-    private string connectionName = string.Empty;
-    private bool isBusy = false;
-    private Exception error = null;
-
-    private async Task HandleConnect()
+    private void HandleConnected(Guid sessionId)
     {
-        try
-        {
-            isBusy = true;
-            var session = await _sessionService.OpenSession(connectionName);
-            NavigateTo($"session/{session.SessionId}");
-        }
-        catch (Exception thrown)
-        {
-            error = thrown;
-        }
-        finally
-        {
-            isBusy = false;
-        }
-    }
-
-    private void NavigateTo(string uri)
-    {
-        _navigationManager.NavigateTo(uri, true);
+        _navigationManager.NavigateTo($"session/{sessionId}", true);        
     }
 }

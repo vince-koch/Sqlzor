@@ -7,13 +7,15 @@ namespace Sqlzor.DbSchema.Drivers
 {
     public interface IDatabaseDriver
     {
-        string ProviderName { get; }
+        string ProviderInvariantName { get; }
 
         Type ConnectionType { get; }
 
         ISchemaFetchService SchemaFetchService { get; }
 
         ISchemaMapper SchemaMapper { get; }
+
+        DbProviderFactory GetProviderFactory();
 
         DbConnectionStringBuilder CreateConnectionStringBuilder();
 

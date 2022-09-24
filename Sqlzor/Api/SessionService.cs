@@ -47,16 +47,28 @@ namespace Sqlzor.Api
 
         public async Task<SessionModel> OpenSession(string connectionName)
         {
+            var entry = await _connectionStringService.GetConnectionStringEntry(connectionName);
+            var session = await OpenSession(entry.Name, entry.ProviderName, entry.ConnectionString);
+            return session;
+        }
+
+        private static int _sessionCount = 0;
+
+        public async Task<SessionModel> OpenSession(string sessionName, string driverName, string connectionString)
+        {
             try
             {
-                var entry = await _connectionStringService.GetConnectionStringEntry(connectionName);
-                var driver = _schemaManagerService.GetDriver(entry.ProviderName);
-                var connection = await driver.OpenConnection(entry.ConnectionString);
+                _sessionCount++;
+
+                var driver = _schemaManagerService.GetDriver(driverName);
+                var connection = await driver.OpenConnection(connectionString);
 
                 var session = new SessionModel
                 {
                     SessionId = Guid.NewGuid(),
-                    SessionName = entry.Name,
+                    SessionName = string.IsNullOrWhiteSpace(sessionName) 
+                        ? $"Connection {_sessionCount}"
+                        : sessionName,
                     Driver = driver,
                     Connetion = connection,
                     Schema = null
@@ -133,7 +145,7 @@ namespace Sqlzor.Api
         private async Task GetHierarchy(SessionModel session)
         {
             var schema = await _schemaManagerService.GetSchema(
-                session.Driver.ProviderName,
+                session.Driver.ProviderInvariantName,
                 session.Connetion.ConnectionString);
 
             var connectionNode = _schemaTreeBuilder.BuildTree(schema);

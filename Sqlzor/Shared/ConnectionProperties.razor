@@ -1,89 +1,144 @@
 ﻿@using Sqlzor.Api;
 
 @inject IConnectionStringService _connectionStringService;
+@inject ISessionService _sessionService;
 
 <div>
+    <ExceptionComponent Exception="@error" />
+
     <div class="form-check">
         <input class="form-check-input" type="radio" name="connectionTypeRadio"
-                checked="@(connectionType == "connectionName")"
-                @onchange="@(e => connectionType = "connectionName")"/>
+                checked="@(connectionType == ConnectionType.ConnectionName)"
+                @onchange="@(e => connectionType = ConnectionType.ConnectionName)"/>
         <div>
             <h4><label class="form-check-label" for="flexRadioDefault1">Named Connection</label></h4>
 
-            <select class="form-control" value="@ConnectionName" disabled="@(connectionType != "connectionName")" @onchange="OnConnectionNameChanged">
-                <option disabled selected value=""> -- Select a Connection -- </option>
-                @if (connectionNames != null)
-                {
-                    @foreach (var connectionName in connectionNames.OrderBy(item => item))
+            <div class="form-group">
+                <select class="form-control" @bind="@connectionName" disabled="@(connectionType != ConnectionType.ConnectionName)">
+                    <option disabled selected value=""> -- Select a Connection -- </option>
+                    @if (connectionNames != null)
                     {
-                        <option value="@connectionName">@connectionName</option>
+                        @foreach (var connectionName in connectionNames.OrderBy(item => item))
+                        {
+                            <option value="@connectionName">@connectionName</option>
+                        }
                     }
-                }
-            </select>
+                </select>
+            </div>
         </div>
     </div>
 
     <div class="form-check">
         <input class="form-check-input" type="radio" name="connectionTypeRadio"
-                checked="@(connectionType == "connectionString")"
-                @onchange="@(e => connectionType = "connectionString")" />
+                checked="@(connectionType == ConnectionType.ConnectionString)"
+                @onchange="@(e => connectionType = ConnectionType.ConnectionString)" />
         <div>
             <h4><label class="form-check-label" for="flexRadioDefault1">Connection String</label></h4>
 
-            <select class="form-control" value="@DriverName" disabled="@(connectionType != "connectionString")" @onchange="OnDriverNameChanged">
-                <option disabled selected value=""> -- Select a Driver -- </option>
-                @if (driverNames != null)
-                {
-                    @foreach (var driverName in driverNames.OrderBy(item => item))
-                    {
-                        <option value="@driverName">@driverName</option>
-                    }
-                }
-            </select>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="--- Enter Session Name ---"
+                    disabled="@(connectionType != ConnectionType.ConnectionString)"
+                    @bind="sessionName" />
+            </div>
 
-            <div class="mb-3">
-                <input id="connectionStringText" type="text" class="form-control" disabled="@(connectionType != "connectionString")" placeholder="--- Enter Connection String Here ---">
+            <div class="form-group">
+                <select class="form-control" @bind="driverName" disabled="@(connectionType != ConnectionType.ConnectionString)">
+                    <option disabled selected value=""> -- Select a Driver -- </option>
+                    @if (driverNames != null)
+                    {
+                        @foreach (var driverName in driverNames.OrderBy(item => item))
+                        {
+                            <option value="@driverName">@driverName</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="--- Enter Connection String ---"
+                    disabled="@(connectionType != ConnectionType.ConnectionString)"
+                    @bind="connectionString" />
             </div>
         </div>
+    </div>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-primary"
+                disabled="@( !CalculateCanConnect() )"
+                @onclick="HandleConnect">
+            <span class="fas fa-plus"></span> Connect
+        </button>
     </div>
 </div>
 
 @code
 {
     [Parameter]
-    public string ConnectionName { get; set; } = string.Empty;
+    public EventCallback<Guid> OnConnected { get; set; }
 
-    [Parameter]
-    public EventCallback<string> ConnectionNameChanged { get; set; }
+    private enum ConnectionType
+    {
+        ConnectionName,
+        ConnectionString
+    }
 
-    [Parameter]
-    public string DriverName { get; set; }
-
-    [Parameter]
-    public EventCallback<string> DriverNameChanged { get; set; }
-
-    private string connectionType = "connectionName";
     private string[] connectionNames;
     private string[] driverNames;
+    private Exception error = null;
+    private bool isBusy = false;
+    private ConnectionType connectionType = ConnectionType.ConnectionName;
+    private string connectionName = string.Empty;
+    private string sessionName = string.Empty;
+    private string driverName = string.Empty;
+    private string connectionString = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         connectionNames = await _connectionStringService.GetConnectionNames();
+        driverNames = await _connectionStringService.GetDriverNames();
     }
 
-    private async Task OnConnectionNameChanged(ChangeEventArgs e)
+    private bool CalculateCanConnect()
     {
-        await ConnectionNameChanged.InvokeAsync(e.Value as string);
+        if (!isBusy)
+        {
+            if (connectionType == ConnectionType.ConnectionName
+                && !string.IsNullOrWhiteSpace(connectionName))
+            {
+                return true;            
+            }
+
+            if (connectionType == ConnectionType.ConnectionString
+                && !string.IsNullOrWhiteSpace(driverName)
+                && !string.IsNullOrWhiteSpace(connectionString))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    private async Task OnDriverNameChanged(ChangeEventArgs e)
+    private async Task HandleConnect()
     {
-        await DriverNameChanged.InvokeAsync(e.Value as string);
-    }
+        try
+        {
+            isBusy = true;
+            error = null;
 
-    private Task HandleClick()
-    {
-        System.Diagnostics.Debug.WriteLine("Connection Type = " + connectionType);
-        return Task.FromResult(0);
+            var session = connectionType == ConnectionType.ConnectionName
+                ? await _sessionService.OpenSession(connectionName)
+                : await _sessionService.OpenSession(sessionName, driverName, connectionString);
+
+            await OnConnected.InvokeAsync(session.SessionId);
+        }
+        catch (Exception thrown)
+        {
+            error = thrown;
+        }
+        finally
+        {
+            isBusy = false;
+        }
     }
 }

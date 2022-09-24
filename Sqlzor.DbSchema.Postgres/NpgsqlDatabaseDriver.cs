@@ -1,37 +1,16 @@
-﻿using System;
-using System.Data.Common;
-
-using Npgsql;
+﻿using Npgsql;
 
 using Sqlzor.DbSchema.Drivers;
-using Sqlzor.DbSchema.Services;
 
 namespace Sqlzor.DbSchema.Postgres
 {
-    public class NpgsqlDatabaseDriver : IDatabaseDriver
+    public class NpgsqlDatabaseDriver : AbstractDatabaseDriver
     {
-        public string ProviderName => "Npgsql";
-
-        public Type ConnectionType => typeof(NpgsqlConnection);
-
-        public ISchemaFetchService SchemaFetchService { get; }
-    
-        public ISchemaMapper SchemaMapper { get; }
-
-        public NpgsqlDatabaseDriver()
+        public NpgsqlDatabaseDriver() : base(
+            typeof(NpgsqlConnection),
+            NpgsqlFactory.Instance, 
+            new NpgsqlSchemaMapper())
         {
-            SchemaFetchService = new NpgsqlSchemaFetchService(this);
-            SchemaMapper = new NpgsqlSchemaMapper();
-        }
-
-        public DbConnection CreateConnection()
-        {
-            return new NpgsqlConnection();
-        }
-
-        public DbConnectionStringBuilder CreateConnectionStringBuilder()
-        {
-            return new NpgsqlConnectionStringBuilder();
         }
     }
 }

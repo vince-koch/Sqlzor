@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,6 +43,12 @@ namespace Sqlzor.Api
             var entries = await GetConnectionStringEntries();
             var entry = entries.Single(item => item.Name == connectionName);
             return entry;
+        }
+
+        public Task<string[]> GetDriverNames()
+        {
+            var driverNames = DbProviderFactories.GetProviderInvariantNames().ToArray();
+            return Task.FromResult(driverNames);
         }
 
         public async Task<string[]> GetConnectionNames()

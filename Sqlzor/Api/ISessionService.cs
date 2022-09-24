@@ -14,6 +14,8 @@ namespace Sqlzor.Api
 
         Task<SessionModel> OpenSession(string connectionName);
 
+        Task<SessionModel> OpenSession(string sessionName, string driverName, string connectionString);
+
         Task CloseSession(Guid sessionid);
 
         Task<DataTable[]> ExecuteQuery(Guid sessionId, string queryText);

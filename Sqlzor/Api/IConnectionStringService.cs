@@ -9,7 +9,9 @@ namespace Sqlzor.Api
         Task<ConnectionStringEntry[]> GetConnectionStringEntries();
 
         Task<ConnectionStringEntry> GetConnectionStringEntry(string connectionName);
-        
+
         Task<string[]> GetConnectionNames();
+
+        Task<string[]> GetDriverNames();
     }
 }
