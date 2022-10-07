@@ -1,6 +1,6 @@
 ﻿@inject IJSRuntime _jsRuntime
 
-<button class="btn btn-secondary" type="button" @onclick="HandleToggleDarkModeClick" title="Toggle Dark Mode">
+<button class="btn btn-secondary" type="button" @onclick="HandleToggleColorMode" title="Toggle Dark Mode">
     <span class="oi @(_isDarkMode ? "oi-moon" : "oi-sun")" aria-hidden="true"></span>
 </button>
 
@@ -11,22 +11,28 @@
     {
         if (firstRender)
         {
-            //<!-- Inform the browser that this page supports both dark and light color schemes, and expresses the page author's preference (dark). -->
-            //<meta name="color-scheme" content="dark light">
-            //<link rel="stylesheet" href="css/bootstrap/bootstrap-nightshade.min.css">
-
-            var module = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", "./Shared/DarkModeComponent.razor.js");
+            await _jsRuntime.InvokeAsync<IJSObjectReference>("import", "./Shared/DarkModeComponent.razor.js");
             await _jsRuntime.InvokeVoidAsync("darkMode_addMetaTag");
             _isDarkMode = await _jsRuntime.InvokeAsync<bool>("darkMode_isDarkMode");
-            await _jsRuntime.InvokeVoidAsync("darkMode_setDarkMode", _isDarkMode);
+            
+            await ApplyColorMode();
         }
 
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected async Task HandleToggleDarkModeClick()
+    private async Task HandleToggleColorMode()
     {
         _isDarkMode = !_isDarkMode;
+        await ApplyColorMode();
+    }
+
+    private async Task ApplyColorMode()
+    {
         await _jsRuntime.InvokeVoidAsync("darkMode_setDarkMode", _isDarkMode);
+
+        var theme = _isDarkMode ? "vs-dark" : "vs";
+        await MonacoEditor.SetTheme(theme);
+        await _jsRuntime.InvokeVoidAsync("monaco.editor.setTheme", theme);
     }
 }
