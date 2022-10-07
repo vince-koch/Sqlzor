@@ -1,0 +1,32 @@
+﻿@inject IJSRuntime _jsRuntime
+
+<button class="btn btn-secondary" type="button" @onclick="HandleToggleDarkModeClick" title="Toggle Dark Mode">
+    <span class="oi @(_isDarkMode ? "oi-moon" : "oi-sun")" aria-hidden="true"></span>
+</button>
+
+@code {
+    private bool _isDarkMode;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //<!-- Inform the browser that this page supports both dark and light color schemes, and expresses the page author's preference (dark). -->
+            //<meta name="color-scheme" content="dark light">
+            //<link rel="stylesheet" href="css/bootstrap/bootstrap-nightshade.min.css">
+
+            var module = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", "./Shared/DarkModeComponent.razor.js");
+            await _jsRuntime.InvokeVoidAsync("darkMode_addMetaTag");
+            _isDarkMode = await _jsRuntime.InvokeAsync<bool>("darkMode_isDarkMode");
+            await _jsRuntime.InvokeVoidAsync("darkMode_setDarkMode", _isDarkMode);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected async Task HandleToggleDarkModeClick()
+    {
+        _isDarkMode = !_isDarkMode;
+        await _jsRuntime.InvokeVoidAsync("darkMode_setDarkMode", _isDarkMode);
+    }
+}
