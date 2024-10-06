@@ -1,0 +1,101 @@
+﻿@page "/bson"
+
+@using Sqlzor.Api;
+@using MongoDB.Bson;
+@using Sqlzor.DbSchema.Mongo
+
+@inject NavigationManager _navigationManager;
+@inject ISessionService _sessionService;
+
+<div class="top-row px-4">
+    <h3>BSON</h3>
+</div>
+<div class="content px-4">
+    <textarea @bind="BsonText" @oninput="HandleInput"></textarea>
+
+    <Tree Node="@BsonTree"
+          HasChildNodes="item => item.Children.Any()"
+          ChildSelector="item => item.Children"
+    >
+        <TitleTemplate><nobr>@context.Name?.Trim('.'): <span class="@GetNodeValueClass(@context)">@GetNodeValueText(@context)</span></nobr></TitleTemplate>
+    </Tree>
+</div>
+
+@code {
+    private string BsonText { get; set; } = string.Empty;
+
+    private BsonTreeNode BsonTree { get; set; } = null;
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        try
+        {
+            var text = e.Value.ToString();
+            BsonDocument doument = BsonDocument.Parse(text);
+            BsonTree = new BsonTreeNode(doument);
+        }
+        catch (Exception thrown)
+        {
+
+        }
+    }
+
+    private string GetNodeValueClass(BsonTreeNode node)
+    {
+        switch (node.Value.BsonType)
+        {
+            case BsonType.Document:
+            case BsonType.Array:
+            case BsonType.Undefined:
+            case BsonType.Null:
+                return "text-muted";
+
+            case BsonType.String:
+                return "text-primary";
+
+            case BsonType.Int32:
+            case BsonType.Int64:
+            case BsonType.Decimal128:
+            case BsonType.Double:
+                return "text-success";
+
+            case BsonType.ObjectId:
+                return "text-danger";
+
+            case BsonType.Boolean:
+                return "text-info";
+
+            case BsonType.DateTime:
+            case BsonType.Timestamp:
+                return "text-warning";
+
+            case BsonType.RegularExpression:
+            case BsonType.JavaScript:
+            case BsonType.Symbol:
+            case BsonType.JavaScriptWithScope:
+            case BsonType.Binary:
+            case BsonType.MinKey:
+            case BsonType.MaxKey:
+            default:
+                return string.Empty;
+        }
+    }
+
+    private string GetNodeValueText(BsonTreeNode node)
+    {
+        switch (node.Value.BsonType)
+        {
+            case BsonType.Document:
+            case BsonType.Array:
+                return $"({node.Children.Count} items)";
+
+            case BsonType.Undefined:
+                return "(undefined)";
+
+            case BsonType.Null:
+                return "(null)";
+            default:
+                return node.Value.ToString();
+        }
+    }
+}

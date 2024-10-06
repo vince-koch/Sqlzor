@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqlzor.Generators", "Sqlzor.Generators\Sqlzor.Generators.csproj", "{176A37CC-956C-4CC4-B5A9-E02BEA534D64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sqlzor.DbSchema.Mongo", "Sqlzor.DbSchema.Mongo\Sqlzor.DbSchema.Mongo.csproj", "{5CB28391-06D6-4BBD-BF83-43B672E5E2EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,10 @@ Global
 		{176A37CC-956C-4CC4-B5A9-E02BEA534D64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{176A37CC-956C-4CC4-B5A9-E02BEA534D64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{176A37CC-956C-4CC4-B5A9-E02BEA534D64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CB28391-06D6-4BBD-BF83-43B672E5E2EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CB28391-06D6-4BBD-BF83-43B672E5E2EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CB28391-06D6-4BBD-BF83-43B672E5E2EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CB28391-06D6-4BBD-BF83-43B672E5E2EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

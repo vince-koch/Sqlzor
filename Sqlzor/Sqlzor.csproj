@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Sqlzor.DbSchema.Mongo\Sqlzor.DbSchema.Mongo.csproj" />
     <ProjectReference Include="..\Sqlzor.DbSchema.MySql\Sqlzor.DbSchema.MySql.csproj" />
     <ProjectReference Include="..\Sqlzor.DbSchema.Postgres\Sqlzor.DbSchema.Postgres.csproj" />
     <ProjectReference Include="..\Sqlzor.DbSchema.SqlLite\Sqlzor.DbSchema.SqlLite.csproj" />
